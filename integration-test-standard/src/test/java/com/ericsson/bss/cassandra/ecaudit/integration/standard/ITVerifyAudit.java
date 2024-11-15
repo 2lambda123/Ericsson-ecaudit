@@ -90,89 +90,93 @@ public class ITVerifyAudit {
 
     session = cdt.createSession();
 
-    session.execute("ALTER ROLE cassandra WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data/system' }");
-    session.execute("ALTER ROLE cassandra WITH OPTIONS = { " +
+    session.execute("ALTER ROLE cassandra WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data/system' }");
+    session.execute("ALTER ROLE cassandra WITH OPTIONS = { "
+                    +
                     "'grant_audit_whitelist_for_all' : 'data/system_schema' }");
     session.execute(
-        "ALTER ROLE cassandra WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/system_virtual_schema' }");
+        "ALTER ROLE cassandra WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/system_virtual_schema' }");
 
-    session.execute("ALTER ROLE cassandra WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data/system' }");
-    session.execute("ALTER ROLE cassandra WITH OPTIONS = { " +
+    session.execute("ALTER ROLE cassandra WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data/system' }");
+    session.execute("ALTER ROLE cassandra WITH OPTIONS = { "
+                    +
                     "'grant_audit_whitelist_for_all' : 'data/system_schema' }");
     session.execute(
-        "ALTER ROLE cassandra WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/system_virtual_schema' }");
+        "ALTER ROLE cassandra WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/system_virtual_schema' }");
 
-    session.execute("CREATE KEYSPACE ecks_itva WITH REPLICATION = {'class' : " +
-                    "'SimpleStrategy', 'replication_factor' : 1} AND " +
-                    "DURABLE_WRITES = false");
-    session.execute("CREATE TABLE ecks_itva.ectbl (partk int PRIMARY KEY, " +
-                    "clustk text, value text)");
-    session.execute("CREATE TABLE ecks_itva.ectypetbl (partk int PRIMARY " +
-                    "KEY, v0 text, v1 ascii, v2 bigint, v3 blob, v4 boolean, "
-                    + "v5 date, v6 decimal, v7 double, v8 float, v9 inet, " +
-                      "v10 int, v11 smallint, v12 time, v13 timestamp, "
+    session.execute("CREATE KEYSPACE ecks_itva WITH REPLICATION = {'class' : "
+                    + "'SimpleStrategy', 'replication_factor' : 1} AND "
+                    + "DURABLE_WRITES = false");
+    session.execute("CREATE TABLE ecks_itva.ectbl (partk int PRIMARY KEY, "
+                    + "clustk text, value text)");
+    session.execute("CREATE TABLE ecks_itva.ectypetbl (partk int PRIMARY "
+                    + "KEY, v0 text, v1 ascii, v2 bigint, v3 blob, v4 boolean, "
+                    + "v5 date, v6 decimal, v7 double, v8 float, v9 inet, "
+                    + "v10 int, v11 smallint, v12 time, v13 timestamp, "
                     + "v14 uuid, v15 varchar, v16 varint)");
 
     session.execute(
         "CREATE ROLE ecuser WITH PASSWORD = 'secret' AND LOGIN = true");
     session.execute("GRANT CREATE ON ALL ROLES TO ecuser");
 
-    session.execute("CREATE ROLE sam WITH PASSWORD = 'secret' AND LOGIN = " +
-                    "true AND SUPERUSER = true");
-    session.execute("ALTER ROLE sam WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data/system'}");
-    session.execute("ALTER ROLE sam WITH OPTIONS = { " +
+    session.execute("CREATE ROLE sam WITH PASSWORD = 'secret' AND LOGIN = "
+                    + "true AND SUPERUSER = true");
+    session.execute("ALTER ROLE sam WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data/system'}");
+    session.execute("ALTER ROLE sam WITH OPTIONS = { "
+                    +
                     "'grant_audit_whitelist_for_all' : 'data/system_schema'}");
     session.execute(
-        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : " +
-        "'data/system_virtual_schema'}");
+        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : "
+        + "'data/system_virtual_schema'}");
     session.execute(
-        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : " +
-        "'data/ecks_itva/ectbl'}");
-    session.execute("ALTER ROLE sam WITH OPTIONS = { " +
+        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : "
+        + "'data/ecks_itva/ectbl'}");
+    session.execute("ALTER ROLE sam WITH OPTIONS = { "
+                    +
                     "'grant_audit_whitelist_for_all' : 'data/nonexistingks'}");
     session.execute(
-        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : " +
-        "'data/ecks_itva/nonexistingtbl'}");
-    session.execute("ALTER ROLE sam WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'connections'}");
+        "ALTER ROLE sam WITH OPTIONS = { 'grant_audit_whitelist_for_all' : "
+        + "'data/ecks_itva/nonexistingtbl'}");
+    session.execute("ALTER ROLE sam WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'connections'}");
     session.execute("GRANT MODIFY ON ecks_itva.ectbl TO sam");
     session.execute("GRANT SELECT ON ecks_itva.ectbl TO sam");
 
-    session.execute("CREATE ROLE foo WITH PASSWORD = 'secret' AND LOGIN = " +
-                    "true AND SUPERUSER = true");
-    session.execute("ALTER ROLE foo WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data'}");
-    session.execute("ALTER ROLE foo WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'roles'}");
-    session.execute("ALTER ROLE foo WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'connections'}");
+    session.execute("CREATE ROLE foo WITH PASSWORD = 'secret' AND LOGIN = "
+                    + "true AND SUPERUSER = true");
+    session.execute("ALTER ROLE foo WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data'}");
+    session.execute("ALTER ROLE foo WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'roles'}");
+    session.execute("ALTER ROLE foo WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'connections'}");
 
-    session.execute("CREATE ROLE bar WITH PASSWORD = 'secret' AND LOGIN = " +
-                    "true AND SUPERUSER = true");
+    session.execute("CREATE ROLE bar WITH PASSWORD = 'secret' AND LOGIN = "
+                    + "true AND SUPERUSER = true");
     session.execute("CREATE ROLE mute WITH LOGIN = false");
-    session.execute("ALTER ROLE mute WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data'}");
-    session.execute("ALTER ROLE mute WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'roles'}");
-    session.execute("ALTER ROLE mute WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'connections'}");
+    session.execute("ALTER ROLE mute WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data'}");
+    session.execute("ALTER ROLE mute WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'roles'}");
+    session.execute("ALTER ROLE mute WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'connections'}");
     session.execute("GRANT mute TO bar");
 
-    session.execute("CREATE ROLE yser2 WITH PASSWORD = 'secret' AND LOGIN = " +
-                    "true AND SUPERUSER = true");
+    session.execute("CREATE ROLE yser2 WITH PASSWORD = 'secret' AND LOGIN = "
+                    + "true AND SUPERUSER = true");
 
-    session.execute("CREATE KEYSPACE ecks2 WITH REPLICATION = {'class' : " +
-                    "'SimpleStrategy', 'replication_factor' : 1} AND " +
-                    "DURABLE_WRITES = false");
+    session.execute("CREATE KEYSPACE ecks2 WITH REPLICATION = {'class' : "
+                    + "'SimpleStrategy', 'replication_factor' : 1} AND "
+                    + "DURABLE_WRITES = false");
 
-    session.execute("CREATE KEYSPACE ecks3 WITH REPLICATION = {'class' : " +
-                    "'SimpleStrategy', 'replication_factor' : 1} AND " +
-                    "DURABLE_WRITES = false");
+    session.execute("CREATE KEYSPACE ecks3 WITH REPLICATION = {'class' : "
+                    + "'SimpleStrategy', 'replication_factor' : 1} AND "
+                    + "DURABLE_WRITES = false");
   }
 
   @Before
@@ -220,8 +224,8 @@ public class ITVerifyAudit {
     assertThat(loggingEvents.stream()
                    .map(ILoggingEvent::getFormattedMessage)
                    .collect(Collectors.toList()))
-        .contains("client:'127.0.0.1'|user:'ecuser'|status:'ATTEMPT'|" +
-                  "operation:'Authentication attempt'");
+        .contains("client:'127.0.0.1'|user:'ecuser'|status:'ATTEMPT'|"
+                  + "operation:'Authentication attempt'");
   }
 
   @Test
@@ -249,10 +253,10 @@ public class ITVerifyAudit {
       assertThat(loggingEvents.stream()
                      .map(ILoggingEvent::getFormattedMessage)
                      .collect(Collectors.toList()))
-          .contains("client:'127.0.0.1'|user:'unknown'|status:'ATTEMPT'|" +
-                    "operation:'Authentication attempt'",
-                    "client:'127.0.0.1'|user:'unknown'|status:'FAILED'|" +
-                    "operation:'Authentication failed'");
+          .contains("client:'127.0.0.1'|user:'unknown'|status:'ATTEMPT'|"
+                        + "operation:'Authentication attempt'",
+                    "client:'127.0.0.1'|user:'unknown'|status:'FAILED'|"
+                        + "operation:'Authentication failed'");
     }
   }
 
@@ -260,18 +264,19 @@ public class ITVerifyAudit {
   public void testValidSimpleStatementsAreLogged() {
     List<String> statements = Arrays.asList(
         "CREATE ROLE validuser WITH PASSWORD = 'secret' AND LOGIN = true",
-        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : " +
-        "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = " +
-        "false",
+        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : "
+            +
+            "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = "
+            + "false",
         "CREATE TYPE validks.validtype (birthday timestamp, nationality text)",
-        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, " +
-        "value text, type frozen <validtype>)",
+        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, "
+            + "value text, type frozen <validtype>)",
         "CREATE INDEX valididx ON validks.validtbl (value)",
         "ALTER ROLE validuser WITH PASSWORD = 'secret' AND LOGIN = false",
         "GRANT SELECT ON KEYSPACE validks TO validuser",
-        "INSERT INTO validks.validtbl (partk, clustk, value, type) VALUES " +
-        "(1, 'one', 'valid', { birthday : '1976-02-25', nationality : " +
-        "'Swedish' })",
+        "INSERT INTO validks.validtbl (partk, clustk, value, type) VALUES "
+            + "(1, 'one', 'valid', { birthday : '1976-02-25', nationality : "
+            + "'Swedish' })",
         "SELECT * FROM validks.validtbl",
         "DELETE FROM validks.validtbl WHERE partk = 2",
         "LIST ROLES OF validuser", "LIST ALL PERMISSIONS",
@@ -308,12 +313,12 @@ public class ITVerifyAudit {
         session.prepare("DELETE FROM ecks_itva.ectbl WHERE partk = ?");
 
     List<String> expectedStatements =
-        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, ?)[1, '1', 'valid']",
+        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, ?)[1, '1', 'valid']",
                       "SELECT * FROM ecks_itva.ectbl WHERE partk = ?[1]",
                       "DELETE FROM ecks_itva.ectbl WHERE partk = ?[1]",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, ?)[2, '2', 'valid']",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, ?)[2, '2', 'valid']",
                       "SELECT * FROM ecks_itva.ectbl WHERE partk = ?[2]",
                       "DELETE FROM ecks_itva.ectbl WHERE partk = ?[2]");
 
@@ -342,20 +347,20 @@ public class ITVerifyAudit {
     PreparedStatement preparedInsertStatement1 = session.prepare(
         "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (?, ?, ?)");
     PreparedStatement preparedInsertStatement2 =
-        session.prepare("INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                        "VALUES (?, ?, 'valid')");
+        session.prepare("INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                        + "VALUES (?, ?, 'valid')");
 
     List<String> expectedStatements =
-        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, ?)[1, '1', 'valid']",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, ?)[2, '2', 'valid']",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, 'valid')[3, '3']",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (4, '4', 'valid')",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (?, ?, 'valid')[5, '5']");
+        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, ?)[1, '1', 'valid']",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, ?)[2, '2', 'valid']",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, 'valid')[3, '3']",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (4, '4', 'valid')",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (?, ?, 'valid')[5, '5']");
 
     BatchStatement batch =
         BatchStatement.builder(DefaultBatchType.UNLOGGED)
@@ -363,8 +368,8 @@ public class ITVerifyAudit {
             .addStatement(preparedInsertStatement1.bind(2, "2", "valid"))
             .addStatement(preparedInsertStatement2.bind(3, "3"))
             .addStatement(SimpleStatement.newInstance(
-                "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES " +
-                "(4, '4', 'valid')"))
+                "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES "
+                + "(4, '4', 'valid')"))
             .addStatement(preparedInsertStatement2.bind(5, "5"))
             .build();
     session.execute(batch);
@@ -385,16 +390,16 @@ public class ITVerifyAudit {
   @Test
   public void testValidNonPreparedBatchStatementsAreLogged() {
     List<String> allStatements =
-        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (1, '1', 'valid')",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (2, '2', 'valid')",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (3, '3', 'valid')",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (4, '4', 'valid')",
-                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                      "VALUES (5, '5', 'valid')");
+        Arrays.asList("INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (1, '1', 'valid')",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (2, '2', 'valid')",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (3, '3', 'valid')",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (4, '4', 'valid')",
+                      "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                          + "VALUES (5, '5', 'valid')");
 
     StringBuilder batchStatementBuilder =
         new StringBuilder("BEGIN UNLOGGED BATCH ");
@@ -426,8 +431,8 @@ public class ITVerifyAudit {
         "BEGIN UNLOGGED BATCH USING TIMESTAMP ? "
         +
         "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (?, ?, ?); "
-        + "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (?, ?, " +
-          "'valid'); "
+        + "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (?, ?, "
+        + "'valid'); "
         + "APPLY BATCH;";
 
     List<String> expectedStatements = Collections.singletonList(
@@ -461,9 +466,8 @@ public class ITVerifyAudit {
         "INSERT INTO ecks_itva.ectypetbl "
         + "(partk, v0, v1, v2, v4, v5, v9, v13, v15)"
         + " VALUES "
-        +
-        "(?, ?, ?, ?, ?, ?, ?, ?, ?)[1, 'text', 'ascii', 123123123123123123, " +
-        "true, 1976-02-25, 8.8.8.8, 2004-05-29T14:29:00.000Z, 'varchar']";
+        + "(?, ?, ?, ?, ?, ?, ?, ?, ?)[1, 'text', 'ascii', 123123123123123123, "
+        + "true, 1976-02-25, 8.8.8.8, 2004-05-29T14:29:00.000Z, 'varchar']";
     // TODO: Are these bugs in Cassandra?
     // Was expecting "v5 date" to get quotes
     // Was expecting "v9 inet" to get quotes
@@ -492,8 +496,8 @@ public class ITVerifyAudit {
         "INSERT INTO ecks_itva.ectypetbl "
         + "(partk, v0, v1, v2, v4, v5, v9, v13, v15)"
         + " VALUES "
-        + "(1, 'text', 'ascii', 123123123123123123, true, '1976-02-25', " +
-          "'8.8.8.8', '2004-05-29T14:29:00.000Z', 'varchar')";
+        + "(1, 'text', 'ascii', 123123123123123123, true, '1976-02-25', "
+        + "'8.8.8.8', '2004-05-29T14:29:00.000Z', 'varchar')";
 
     session.execute(statement);
 
@@ -513,13 +517,14 @@ public class ITVerifyAudit {
   public void testWhitelistedUserValidStatementsAreNotLogged() {
     List<String> statements = Arrays.asList(
         "CREATE ROLE validuser WITH PASSWORD = 'secret' AND LOGIN = true",
-        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : " +
-        "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = " +
-        "false",
-        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, " +
-        "value text)",
-        "INSERT INTO validks.validtbl (partk, clustk, value) VALUES (1, " +
-        "'one', 'valid')",
+        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : "
+            +
+            "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = "
+            + "false",
+        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, "
+            + "value text)",
+        "INSERT INTO validks.validtbl (partk, clustk, value) VALUES (1, "
+            + "'one', 'valid')",
         "SELECT * FROM validks.validtbl",
         "DELETE FROM validks.validtbl WHERE partk = 2",
         "DROP KEYSPACE IF EXISTS validks", "DROP ROLE IF EXISTS validuser");
@@ -541,8 +546,8 @@ public class ITVerifyAudit {
     // connections if statemens doesn't have it here.
     // TODO: Research if this is "bug" in Cassandra, driver or ecAudit?
     List<String> statements = Arrays.asList(
-        "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (1, " +
-        "'one', 'valid')",
+        "INSERT INTO ecks_itva.ectbl (partk, clustk, value) VALUES (1, "
+            + "'one', 'valid')",
         "SELECT * FROM ecks_itva.ectbl", "USE \"ecks_itva\"",
         "INSERT INTO ectbl (partk, clustk, value) VALUES (1, 'one', 'valid')",
         "SELECT * FROM ectbl");
@@ -612,13 +617,14 @@ public class ITVerifyAudit {
   public void testFailedStatementsAreLogged() {
     List<String> statements = Arrays.asList(
         "CREATE ROLE ecuser WITH PASSWORD = 'secret' AND LOGIN = true",
-        "CREATE KEYSPACE ecks_itva WITH REPLICATION = {'class' : " +
-        "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = " +
-        "false",
-        "CREATE TABLE ecks_itva.ectbl (partk int PRIMARY KEY, clustk text, " +
-        "value text)",
-        "INSERT INTO invalidks.invalidtbl (partk, clustk, value) VALUES (1, " +
-        "'one', 'valid')",
+        "CREATE KEYSPACE ecks_itva WITH REPLICATION = {'class' : "
+            +
+            "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = "
+            + "false",
+        "CREATE TABLE ecks_itva.ectbl (partk int PRIMARY KEY, clustk text, "
+            + "value text)",
+        "INSERT INTO invalidks.invalidtbl (partk, clustk, value) VALUES (1, "
+            + "'one', 'valid')",
         "SELECT * FROM invalidks.invalidtbl",
         "SELECT * FROM ecks_itva.invalidtbl",
         "DELETE FROM invalidks.invalidtbl WHERE partk = 2",
@@ -647,10 +653,10 @@ public class ITVerifyAudit {
     List<String> statements =
         Arrays.asList("SELECT * FROM nonexistingks.nonexistingtbl",
                       "SELECT * FROM ecks_itva.nonexistingtbl",
-                      "INSERT INTO nonexistingks.nonexistingtbl (partk, " +
-                      "clustk, value) VALUES (1, 'one', 'valid')",
-                      "INSERT INTO ecks_itva.nonexistingtbl (partk, clustk, " +
-                      "value) VALUES (1, 'one', 'valid')");
+                      "INSERT INTO nonexistingks.nonexistingtbl (partk, "
+                          + "clustk, value) VALUES (1, 'one', 'valid')",
+                      "INSERT INTO ecks_itva.nonexistingtbl (partk, clustk, "
+                          + "value) VALUES (1, 'one', 'valid')");
 
     try (CqlSession privateSession = cdt.createSession("sam", "secret")) {
       for (String statement : statements) {
@@ -663,18 +669,18 @@ public class ITVerifyAudit {
   @Test
   public void testFailedWhitelistedBatchStatementIsNotLogged() {
     List<String> statements =
-        Arrays.asList("INSERT INTO nonexistingks.nonexistingtbl (partk, " +
-                      "clustk, value) VALUES (1, 'one', 'valid')",
-                      "INSERT INTO validks.nonexistingtbl (partk, clustk, " +
-                      "value) VALUES (1, 'one', 'valid')");
+        Arrays.asList("INSERT INTO nonexistingks.nonexistingtbl (partk, "
+                          + "clustk, value) VALUES (1, 'one', 'valid')",
+                      "INSERT INTO validks.nonexistingtbl (partk, clustk, "
+                          + "value) VALUES (1, 'one', 'valid')");
 
     try (CqlSession privateSession = cdt.createSession("sam", "secret")) {
       for (String statement : statements) {
         BatchStatement batch =
             BatchStatement.builder(DefaultBatchType.UNLOGGED)
                 .addStatement(SimpleStatement.newInstance(
-                    "INSERT INTO ecks_itva.ectbl (partk, clustk, value) " +
-                    "VALUES (4, '4', 'valid')"))
+                    "INSERT INTO ecks_itva.ectbl (partk, clustk, value) "
+                    + "VALUES (4, '4', 'valid')"))
                 .addStatement(SimpleStatement.newInstance(statement))
                 .build();
         assertThatExceptionOfType(InvalidQueryException.class)
@@ -688,13 +694,14 @@ public class ITVerifyAudit {
   testYamlWhitelistedUserShowConnectionAttemptsButValidStatementsAreNotLogged() {
     List<String> statements = Arrays.asList(
         "CREATE ROLE validuser WITH PASSWORD = 'secret' AND LOGIN = true",
-        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : " +
-        "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = " +
-        "false",
-        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, " +
-        "value text)",
-        "INSERT INTO validks.validtbl (partk, clustk, value) VALUES (1, " +
-        "'one', 'valid')",
+        "CREATE KEYSPACE validks WITH REPLICATION = {'class' : "
+            +
+            "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = "
+            + "false",
+        "CREATE TABLE validks.validtbl (partk int PRIMARY KEY, clustk text, "
+            + "value text)",
+        "INSERT INTO validks.validtbl (partk, clustk, value) VALUES (1, "
+            + "'one', 'valid')",
         "SELECT * FROM validks.validtbl",
         "DELETE FROM validks.validtbl WHERE partk = 2",
         "DROP KEYSPACE IF EXISTS validks", "DROP ROLE IF EXISTS validuser");
@@ -717,16 +724,16 @@ public class ITVerifyAudit {
     assertThat(loggingEvents.stream()
                    .map(ILoggingEvent::getFormattedMessage)
                    .collect(Collectors.toList()))
-        .contains("client:'127.0.0.1'|user:'yser2'|status:'ATTEMPT'|" +
-                  "operation:'Authentication attempt'");
+        .contains("client:'127.0.0.1'|user:'yser2'|status:'ATTEMPT'|"
+                  + "operation:'Authentication attempt'");
   }
 
   private List<String> expectedAttempts(List<String> statements) {
     return statements.stream()
         .map(s -> s.replaceAll("secret", "*****"))
         .map(s
-             -> String.format("client:'127.0.0.1'|user:'cassandra'|status:'" +
-                              "ATTEMPT'|operation:'%s'",
+             -> String.format("client:'127.0.0.1'|user:'cassandra'|status:'"
+                                  + "ATTEMPT'|operation:'%s'",
                               s))
         .collect(Collectors.toList());
   }

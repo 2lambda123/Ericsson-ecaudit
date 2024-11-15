@@ -140,20 +140,20 @@ public class CassandraClusterFacade {
   private void setMinimumWhitelist(String username) {
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : " +
-         "'connections' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : "
+         + "'connections' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_schema' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_virtual_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_virtual_schema' }"));
   }
 
   void givenStatementExecutedAsSuperuserWithoutAudit(String statement) {
@@ -163,8 +163,8 @@ public class CassandraClusterFacade {
   void givenKeyspace(String keyspace) {
     superSession.execute(
         "CREATE KEYSPACE IF NOT EXISTS " + keyspace +
-        (" WITH REPLICATION = {'class' : 'SimpleStrategy', " +
-         "'replication_factor' : 1} AND DURABLE_WRITES = false"));
+        (" WITH REPLICATION = {'class' : 'SimpleStrategy', "
+         + "'replication_factor' : 1} AND DURABLE_WRITES = false"));
     createdKeyspaces.add(keyspace);
   }
 

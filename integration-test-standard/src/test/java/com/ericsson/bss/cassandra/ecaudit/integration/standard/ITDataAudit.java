@@ -73,19 +73,21 @@ public class ITDataAudit {
   @SuppressWarnings("unused")
   private Object[] parametersForSimpleStatements() {
     return new Object[] {
-        new Object[] {"CREATE KEYSPACE IF NOT EXISTS dataks WITH REPLICATION " +
-                      "= {'class' : 'SimpleStrategy', 'replication_factor' : " +
-                      "1} AND DURABLE_WRITES = false",
-                      "create", "data/dataks"},
-        new Object[] {"CREATE TABLE IF NOT EXISTS dataks.tbl (key int " +
-                      "PRIMARY KEY, value text)",
+        new Object[] {
+            "CREATE KEYSPACE IF NOT EXISTS dataks WITH REPLICATION "
+                + "= {'class' : 'SimpleStrategy', 'replication_factor' : "
+                + "1} AND DURABLE_WRITES = false",
+            "create", "data/dataks"},
+        new Object[] {"CREATE TABLE IF NOT EXISTS dataks.tbl (key int "
+                          + "PRIMARY KEY, value text)",
                       "create", "data/dataks"},
         new Object[] {"CREATE INDEX IF NOT EXISTS idx ON dataks.tbl (value)",
                       "alter", "data/dataks/tbl"},
-        new Object[] {"CREATE MATERIALIZED VIEW IF NOT EXISTS dataks.viw AS " +
-                      "SELECT key, value FROM dataks.tbl WHERE value IS NOT " +
-                      "NULL AND key IS NOT NULL PRIMARY KEY (value, key)",
-                      "alter", "data/dataks/tbl"},
+        new Object[] {
+            "CREATE MATERIALIZED VIEW IF NOT EXISTS dataks.viw AS "
+                + "SELECT key, value FROM dataks.tbl WHERE value IS NOT "
+                + "NULL AND key IS NOT NULL PRIMARY KEY (value, key)",
+            "alter", "data/dataks/tbl"},
         new Object[] {
             "CREATE TYPE IF NOT EXISTS dataks.tp (data1 int, data2 int)",
             "create", "data/dataks"},
@@ -192,7 +194,7 @@ public class ITDataAudit {
   private void givenMaterializedView(String view) {
     ccf.givenStatementExecutedAsSuperuserWithoutAudit(
         "CREATE MATERIALIZED VIEW IF NOT EXISTS " + view +
-        (" AS SELECT key, value FROM dataks.tbl WHERE value IS NOT NULL AND " +
-         "key IS NOT NULL PRIMARY KEY (value, key)"));
+        (" AS SELECT key, value FROM dataks.tbl WHERE value IS NOT NULL AND "
+         + "key IS NOT NULL PRIMARY KEY (value, key)"));
   }
 }

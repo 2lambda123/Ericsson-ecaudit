@@ -69,11 +69,11 @@ public class ITVerifyWhitelistManagement {
 
     session = cdt.createSession();
 
-    session.execute("CREATE KEYSPACE ecks_itvwm WITH REPLICATION = {'class' " +
-                    ": 'SimpleStrategy', 'replication_factor' : 1} AND " +
-                    "DURABLE_WRITES = false");
-    session.execute("CREATE TABLE ecks_itvwm.ectbl (partk int PRIMARY KEY, " +
-                    "clustk text, value text)");
+    session.execute("CREATE KEYSPACE ecks_itvwm WITH REPLICATION = {'class' "
+                    + ": 'SimpleStrategy', 'replication_factor' : 1} AND "
+                    + "DURABLE_WRITES = false");
+    session.execute("CREATE TABLE ecks_itvwm.ectbl (partk int PRIMARY KEY, "
+                    + "clustk text, value text)");
 
     session.execute(
         "CREATE ROLE ordinary_user WITH PASSWORD = 'secret' AND LOGIN = true");
@@ -84,11 +84,11 @@ public class ITVerifyWhitelistManagement {
     session.execute("GRANT SELECT ON TABLE ecks_itvwm.ectbl TO create_user");
     session.execute("GRANT CREATE ON ALL ROLES TO create_user");
 
-    session.execute("CREATE ROLE other_user WITH PASSWORD = 'secret' AND " +
-                    "LOGIN = true AND SUPERUSER = false");
+    session.execute("CREATE ROLE other_user WITH PASSWORD = 'secret' AND "
+                    + "LOGIN = true AND SUPERUSER = false");
 
-    session.execute("CREATE ROLE authorized_user WITH PASSWORD = 'secret' " +
-                    "AND LOGIN = true");
+    session.execute("CREATE ROLE authorized_user WITH PASSWORD = 'secret' "
+                    + "AND LOGIN = true");
     session.execute(
         "GRANT SELECT ON TABLE ecks_itvwm.ectbl TO authorized_user");
     session.execute("GRANT CREATE ON ALL ROLES TO authorized_user");
@@ -101,12 +101,12 @@ public class ITVerifyWhitelistManagement {
         "CREATE ROLE uber_user WITH PASSWORD = 'secret' AND LOGIN = true");
     session.execute("GRANT uber_role TO uber_user");
 
-    session.execute("CREATE ROLE super_user WITH PASSWORD = 'secret' AND " +
-                    "LOGIN = true AND SUPERUSER = true");
+    session.execute("CREATE ROLE super_user WITH PASSWORD = 'secret' AND "
+                    + "LOGIN = true AND SUPERUSER = true");
 
     session.execute("CREATE ROLE whitelist_role WITH LOGIN = false");
-    session.execute("ALTER ROLE whitelist_role WITH OPTIONS = { " +
-                    "'grant_audit_whitelist_for_all' : 'data' }");
+    session.execute("ALTER ROLE whitelist_role WITH OPTIONS = { "
+                    + "'grant_audit_whitelist_for_all' : 'data' }");
     session.execute(
         "CREATE ROLE trusted_user WITH PASSWORD = 'secret' AND LOGIN = true");
     session.execute("GRANT SELECT ON TABLE ecks_itvwm.ectbl TO trusted_user");
@@ -158,8 +158,8 @@ public class ITVerifyWhitelistManagement {
   public void testOrdinaryUserCannotWhitelistHimself() {
     try (CqlSession privateSession =
              cdt.createSession("ordinary_user", "secret")) {
-      privateSession.execute("ALTER ROLE ordinary_user WITH OPTIONS = { " +
-                             "'grant_audit_whitelist_for_all' : 'data' }");
+      privateSession.execute("ALTER ROLE ordinary_user WITH OPTIONS = { "
+                             + "'grant_audit_whitelist_for_all' : 'data' }");
     }
   }
 
@@ -168,8 +168,8 @@ public class ITVerifyWhitelistManagement {
     try (CqlSession privateSession =
              cdt.createSession("ordinary_user", "secret")) {
       privateSession.execute(
-          "ALTER ROLE ordinary_user WITH OPTIONS = { " +
-          "'grant_audit_whitelist_for_all' : 'grants/data' }");
+          "ALTER ROLE ordinary_user WITH OPTIONS = { "
+          + "'grant_audit_whitelist_for_all' : 'grants/data' }");
     }
   }
 
@@ -178,8 +178,8 @@ public class ITVerifyWhitelistManagement {
     try (CqlSession privateSession =
              cdt.createSession("create_user", "secret")) {
       given_temporary_user(privateSession);
-      privateSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                             "'grant_audit_whitelist_for_all' : 'data' }");
+      privateSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                             + "'grant_audit_whitelist_for_all' : 'data' }");
     }
   }
 
@@ -187,14 +187,14 @@ public class ITVerifyWhitelistManagement {
   public void testAuthorizedUserCannotWhitelistUserAtCreate() {
     given_temporary_user(authorizedSession);
     authorizedSession.execute(
-        "CREATE ROLE temporary_user WITH PASSWORD = 'secret' AND LOGIN = " +
-        "true AND OPTIONS = { 'grant_audit_whitelist_for_all' : 'data' }");
+        "CREATE ROLE temporary_user WITH PASSWORD = 'secret' AND LOGIN = "
+        + "true AND OPTIONS = { 'grant_audit_whitelist_for_all' : 'data' }");
   }
 
   @Test
   public void testAuthorizedUserCanGrantWhitelistToHimself() {
-    authorizedSession.execute("ALTER ROLE authorized_user WITH OPTIONS = { " +
-                              "'grant_audit_whitelist_for_all' : 'data' }");
+    authorizedSession.execute("ALTER ROLE authorized_user WITH OPTIONS = { "
+                              + "'grant_audit_whitelist_for_all' : 'data' }");
 
     assertRoleOperations(
         "authorized_user", "data",
@@ -203,8 +203,8 @@ public class ITVerifyWhitelistManagement {
 
   @Test
   public void testAuthorizedUserCanGrantWhitelistToOther() {
-    authorizedSession.execute("ALTER ROLE other_user WITH OPTIONS = { " +
-                              "'grant_audit_whitelist_for_all' : 'data' }");
+    authorizedSession.execute("ALTER ROLE other_user WITH OPTIONS = { "
+                              + "'grant_audit_whitelist_for_all' : 'data' }");
 
     assertRoleOperations(
         "other_user", "data",
@@ -214,8 +214,8 @@ public class ITVerifyWhitelistManagement {
   @Test
   public void testAuthorizedUserCanGrantPermissionDerivedWhitelistToHimself() {
     authorizedSession.execute(
-        "ALTER ROLE authorized_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'grants/data' }");
+        "ALTER ROLE authorized_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'grants/data' }");
 
     assertRoleOperations(
         "authorized_user", "grants/data",
@@ -225,8 +225,8 @@ public class ITVerifyWhitelistManagement {
   @Test
   public void testAuthorizedUserCanGrantPermissionDerivedWhitelistToOthers() {
     authorizedSession.execute(
-        "ALTER ROLE other_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'grants/data' }");
+        "ALTER ROLE other_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'grants/data' }");
 
     assertRoleOperations(
         "other_user", "grants/data",
@@ -248,10 +248,10 @@ public class ITVerifyWhitelistManagement {
   @Test
   public void testSuperUserCanWhitelistOnData() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_select' : 'data' }");
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_modify' : 'data' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_select' : 'data' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_modify' : 'data' }");
 
     assertRoleOperations("temporary_user", "data", asList("SELECT", "MODIFY"));
   }
@@ -260,8 +260,8 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanWhitelistOnDataPartly() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/ectbl' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/ectbl' }");
 
     assertRoleOperations(
         "temporary_user", "data/ecks_itvwm/ectbl",
@@ -272,8 +272,8 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanWhitelistOnNonexistingKeyspace() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/unknownks' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/unknownks' }");
 
     assertRoleOperations(
         "temporary_user", "data/unknownks",
@@ -284,16 +284,16 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanNotWhitelistOnInvalidKeyspace() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/unknownk%s' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/unknownk%s' }");
   }
 
   @Test
   public void testSuperUserCanWhitelistOnNonexistingTable() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/unknowntbl' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/unknowntbl' }");
 
     assertRoleOperations(
         "temporary_user", "data/ecks_itvwm/unknowntbl",
@@ -304,24 +304,24 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanNotWhitelistOnInvalidTable() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/unknown?tbl' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'data/ecks_itvwm/unknown?tbl' }");
   }
 
   @Test(expected = InvalidQueryException.class)
   public void testSuperUserCanNotWhitelistTwoOperationsInOneStatement() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_select' : 'data/ecks_itvwm' " +
-        ",'grant_audit_whitelist_for_modify' : 'data/ecks'}");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_select' : 'data/ecks_itvwm' "
+        + ",'grant_audit_whitelist_for_modify' : 'data/ecks'}");
   }
 
   @Test
   public void testSuperUserCanWhitelistOnConnection() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : 'connections' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : 'connections' }");
 
     assertRoleOperations("temporary_user", "connections",
                          asList("AUTHORIZE", "EXECUTE"));
@@ -331,15 +331,15 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanNotWhitelistOnConnectionWithName() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'connections/native' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'connections/native' }");
   }
 
   @Test
   public void testSuperUserCanWhitelistOnGrant() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : 'grants' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : 'grants' }");
 
     List<String> allPermissions =
         Permission.ALL.stream().map(Enum::name).collect(Collectors.toList());
@@ -350,8 +350,8 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanWhitelistOnTableDataGrant() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'grants/data/ks/tb' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'grants/data/ks/tb' }");
     assertRoleOperations(
         "temporary_user", "grants/data/ks/tb",
         asList("ALTER", "DROP", "SELECT", "MODIFY", "AUTHORIZE"));
@@ -361,15 +361,15 @@ public class ITVerifyWhitelistManagement {
   public void testSuperUserCanNotWhitelistOnGrantWithInvalidResource() {
     given_temporary_user(superSession);
     superSession.execute(
-        "ALTER ROLE temporary_user WITH OPTIONS = { " +
-        "'grant_audit_whitelist_for_all' : 'grants/non_existing_resource' }");
+        "ALTER ROLE temporary_user WITH OPTIONS = { "
+        + "'grant_audit_whitelist_for_all' : 'grants/non_existing_resource' }");
   }
 
   @Test
   public void testSuperUserCanWhitelistOnRoles() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : 'roles' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : 'roles' }");
 
     assertRoleOperations(
         "temporary_user", "roles",
@@ -379,16 +379,16 @@ public class ITVerifyWhitelistManagement {
   @Test(expected = InvalidQueryException.class)
   public void testSuperUserCanNotWhitelistOnInvalidDataResource() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : " +
-                         "'data/ecks_itvwm/unknowntbl/invalid' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : "
+                         + "'data/ecks_itvwm/unknowntbl/invalid' }");
   }
 
   @Test(expected = InvalidQueryException.class)
   public void testSuperUserCanNotWhitelistOnInvalidRoleResource() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : 'roles/t%s' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : 'roles/t%s' }");
   }
 
   @Test
@@ -403,12 +403,12 @@ public class ITVerifyWhitelistManagement {
   @Test
   public void testRevokeOperations() {
     given_temporary_user(superSession);
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'grant_audit_whitelist_for_all' : 'data' }");
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'revoke_audit_whitelist_for_modify' : 'data' }");
-    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { " +
-                         "'revoke_audit_whitelist_for_drop' : 'data' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'grant_audit_whitelist_for_all' : 'data' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'revoke_audit_whitelist_for_modify' : 'data' }");
+    superSession.execute("ALTER ROLE temporary_user WITH OPTIONS = { "
+                         + "'revoke_audit_whitelist_for_drop' : 'data' }");
 
     assertRoleOperations("temporary_user", "data",
                          asList("CREATE", "ALTER", "SELECT", "AUTHORIZE"));

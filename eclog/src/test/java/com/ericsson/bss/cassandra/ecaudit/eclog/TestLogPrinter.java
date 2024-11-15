@@ -53,10 +53,10 @@ public class TestLogPrinter {
                  UUID.fromString("12345678-aaaa-bbbb-cccc-123456789abc"),
                  "select something");
   private static final String ALL_FIELDS_OPTIONAL =
-      "{?timestamp:${TIMESTAMP}?}{?|client:${CLIENT_IP}?}{?:${CLIENT_PORT}?}{" +
-      "?|coordinator:${COORDINATOR_IP}?}{?|user:${USER}?}{?|batchId:${BATCH_" +
-      "ID}?}{?|status:${STATUS}?}{?|operation:'${OPERATION}'?}{?|operation-" +
-      "naked:'${OPERATION_NAKED}'?}";
+      "{?timestamp:${TIMESTAMP}?}{?|client:${CLIENT_IP}?}{?:${CLIENT_PORT}?}{"
+      + "?|coordinator:${COORDINATOR_IP}?}{?|user:${USER}?}{?|batchId:${BATCH_"
+      + "ID}?}{?|status:${STATUS}?}{?|operation:'${OPERATION}'?}{?|operation-"
+      + "naked:'${OPERATION_NAKED}'?}";
 
   @Mock private PrintStream stream;
 
@@ -181,17 +181,17 @@ public class TestLogPrinter {
     printer.print(reader);
 
     verify(stream).println(
-        eq("timestamp:123|client:1.2.3.4:42|coordinator:5.6.7.8|user:king|" +
-           "batchId:12345678-aaaa-bbbb-cccc-123456789abc|status:ATTEMPT|" +
-           "operation:'select something'|operation-naked:'select something - " +
-           "naked'"));
+        eq("timestamp:123|client:1.2.3.4:42|coordinator:5.6.7.8|user:king|"
+           + "batchId:12345678-aaaa-bbbb-cccc-123456789abc|status:ATTEMPT|"
+           + "operation:'select something'|operation-naked:'select something - "
+           + "naked'"));
   }
 
   @Test(timeout = 5000)
   public void testCustomTimeFormat() {
     EcLogYamlConfig config =
-        mockConfig("Timestamp = ${TIMESTAMP}, User = ${USER}, Status = " +
-                   "${STATUS}, Query = '${OPERATION}'");
+        mockConfig("Timestamp = ${TIMESTAMP}, User = ${USER}, Status = "
+                   + "${STATUS}, Query = '${OPERATION}'");
     when(config.getTimeFormatter())
         .thenReturn(Optional.of(
             DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)));
@@ -201,8 +201,8 @@ public class TestLogPrinter {
     printer.print(reader);
 
     verify(stream).println(
-        eq("Timestamp = 1970-01-01T00:00:00.123, User = king, Status = " +
-           "ATTEMPT, Query = 'select something'"));
+        eq("Timestamp = 1970-01-01T00:00:00.123, User = king, Status = "
+           + "ATTEMPT, Query = 'select something'"));
   }
 
   @Test(timeout = 5000)
@@ -369,8 +369,8 @@ public class TestLogPrinter {
   private void verifyBatchRecordsFromStartOfSequence(int count) {
     for (int i = 0; i < count; i++) {
       verify(stream).println(
-          eq(i + ("|1.2.3.4:222|5.6.7.8|king|ATTEMPT|b23534c7-93af-497f-b00c-" +
-                  "1edaaa335caa|SELECT QUERY")));
+          eq(i + ("|1.2.3.4:222|5.6.7.8|king|ATTEMPT|b23534c7-93af-497f-b00c-"
+                  + "1edaaa335caa|SELECT QUERY")));
     }
   }
 }

@@ -178,13 +178,13 @@ public class ITFunctionsAudit {
 
   private static String createFunctionCQL(String name) {
     return "CREATE FUNCTION IF NOT EXISTS " + name +
-        (" (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java " +
-         "AS 'return Double.valueOf(Math.log(input.doubleValue()));'");
+        (" (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java "
+         + "AS 'return Double.valueOf(Math.log(input.doubleValue()));'");
   }
 
   private static String createAggregateCQL(String name) {
     return "CREATE AGGREGATE IF NOT EXISTS " + name +
-        (" (int) SFUNC avgState1 STYPE tuple<int,bigint> FINALFUNC avgFinal1 " +
-         "INITCOND (0,0)");
+        (" (int) SFUNC avgState1 STYPE tuple<int,bigint> FINALFUNC avgFinal1 "
+         + "INITCOND (0,0)");
   }
 }

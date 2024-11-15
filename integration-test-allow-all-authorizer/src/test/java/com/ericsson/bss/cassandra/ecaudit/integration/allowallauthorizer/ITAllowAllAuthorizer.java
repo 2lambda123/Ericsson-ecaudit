@@ -89,8 +89,8 @@ public class ITAllowAllAuthorizer {
 
     assertThat(getLogEntries())
         .containsOnly(
-            "client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'" +
-            "INSERT INTO school.students (key, value) VALUES (42, 'Kalle')'");
+            "client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'"
+            + "INSERT INTO school.students (key, value) VALUES (42, 'Kalle')'");
   }
 
   @Test
@@ -106,16 +106,16 @@ public class ITAllowAllAuthorizer {
 
     assertThat(getLogEntries())
         .containsOnly(
-            "client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'" +
-            "GRANT SELECT ON TABLE company.engineers TO cassandra'",
-            "client:'127.0.0.1'|user:'cassandra'|status:'FAILED'|operation:'" +
-            "GRANT SELECT ON TABLE company.engineers TO cassandra'");
+            "client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'"
+                + "GRANT SELECT ON TABLE company.engineers TO cassandra'",
+            "client:'127.0.0.1'|user:'cassandra'|status:'FAILED'|operation:'"
+                + "GRANT SELECT ON TABLE company.engineers TO cassandra'");
   }
 
   private void givenTable(String keyspace, String table) {
     session.execute("CREATE KEYSPACE IF NOT EXISTS " + keyspace +
-                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', " +
-                     "'replication_factor' : 1} AND DURABLE_WRITES = false"));
+                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', "
+                     + "'replication_factor' : 1} AND DURABLE_WRITES = false"));
     session.execute("CREATE TABLE IF NOT EXISTS " + keyspace + "." + table +
                     " (key int PRIMARY KEY, value text)");
   }

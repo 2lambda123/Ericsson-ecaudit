@@ -93,8 +93,8 @@ public class ITQueryLogger {
 
     assertThat(getLogEntries())
         .containsOnly(
-            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'" +
-            "INSERT INTO school.students (key, value) VALUES (42, 'Kalle')'");
+            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
+            + "INSERT INTO school.students (key, value) VALUES (42, 'Kalle')'");
   }
 
   @Test
@@ -107,11 +107,12 @@ public class ITQueryLogger {
     session.execute(prepared.bind(42, "Kalle"));
     assertThat(getLogEntries())
         .containsOnly(
-            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'" +
-            "Prepared: INSERT INTO school.students (key, value) VALUES (?, ?)'",
-            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'" +
-            "INSERT INTO school.students (key, value) VALUES (?, ?)[42, " +
-            "'Kalle']'");
+            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
+                + "Prepared: INSERT INTO school.students (key, value) VALUES " +
+                  "(?, ?)'",
+            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
+                + "INSERT INTO school.students (key, value) VALUES (?, ?)[42, "
+                + "'Kalle']'");
   }
 
   @Test
@@ -122,16 +123,17 @@ public class ITQueryLogger {
     assertThatExceptionOfType(InvalidQueryException.class)
         .isThrownBy(
             ()
-                -> session.prepare("INSERT INTO school.invalidestudents " +
-                                   "(key, value) VALUES (?, ?)"));
+                -> session.prepare("INSERT INTO school.invalidestudents "
+                                   + "(key, value) VALUES (?, ?)"));
 
     assertThat(getLogEntries())
-        .containsOnly("client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|" +
-                      "operation:'Prepared: INSERT INTO " +
-                      "school.invalidestudents (key, value) VALUES (?, ?)'",
-                      "client:'127.0.0.1'|user:'anonymous'|status:'FAILED'|" +
-                      "operation:'Prepared: INSERT INTO " +
-                      "school.invalidestudents (key, value) VALUES (?, ?)'");
+        .containsOnly(
+            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|"
+                + "operation:'Prepared: INSERT INTO "
+                + "school.invalidestudents (key, value) VALUES (?, ?)'",
+            "client:'127.0.0.1'|user:'anonymous'|status:'FAILED'|"
+                + "operation:'Prepared: INSERT INTO "
+                + "school.invalidestudents (key, value) VALUES (?, ?)'");
   }
 
   @Test
@@ -147,16 +149,16 @@ public class ITQueryLogger {
 
     assertThat(getLogEntries())
         .containsOnly(
-            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'" +
-            "GRANT SELECT ON TABLE company.engineers TO cassandra'",
-            "client:'127.0.0.1'|user:'anonymous'|status:'FAILED'|operation:'" +
-            "GRANT SELECT ON TABLE company.engineers TO cassandra'");
+            "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
+                + "GRANT SELECT ON TABLE company.engineers TO cassandra'",
+            "client:'127.0.0.1'|user:'anonymous'|status:'FAILED'|operation:'"
+                + "GRANT SELECT ON TABLE company.engineers TO cassandra'");
   }
 
   private void givenTable(String keyspace, String table) {
     session.execute("CREATE KEYSPACE IF NOT EXISTS " + keyspace +
-                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', " +
-                     "'replication_factor' : 1} AND DURABLE_WRITES = false"));
+                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', "
+                     + "'replication_factor' : 1} AND DURABLE_WRITES = false"));
     session.execute("CREATE TABLE IF NOT EXISTS " + keyspace + "." + table +
                     " (key int PRIMARY KEY, value text)");
   }
