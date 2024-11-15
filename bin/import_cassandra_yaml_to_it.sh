@@ -52,10 +52,10 @@ format_for_it () {
  sed -i 's/^enable_materialized_views:.*/enable_materialized_views: true/' "$2"
 }
 
-for IT_TARGET in ${SCRIPT_PATH}/../integration-test-*/src/test/resources/cassandra.yaml;
+for IT_TARGET in "$SCRIPT_PATH"/../integration-test-*/src/test/resources/cassandra.yaml;
 do
- format_for_it "${IMPORT_YAML}" "${IT_TARGET}"
+ format_for_it "$IMPORT_YAML" "$IT_TARGET"
 done
 
-sed -i 's/^authenticator:.*/authenticator: AllowAllAuthenticator/' "${SCRIPT_PATH}"/../integration-test-query-logger/src/test/resources/cassandra.yaml
-sed -i 's/^authorizer:.*/authorizer: AllowAllAuthorizer/' "${SCRIPT_PATH}"/../integration-test-query-logger/src/test/resources/cassandra.yaml
+sed -i 's/^authenticator:.*/authenticator: AllowAllAuthenticator/' "$SCRIPT_PATH"/../integration-test-query-logger/src/test/resources/cassandra.yaml
+sed -i 's/^authorizer:.*/authorizer: AllowAllAuthorizer/' "$SCRIPT_PATH"/../integration-test-query-logger/src/test/resources/cassandra.yaml
