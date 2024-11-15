@@ -15,6 +15,12 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.integration.standard;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.servererrors.UnauthorizedException;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -22,164 +28,163 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.servererrors.UnauthorizedException;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
 @RunWith(JUnitParamsRunner.class)
-public class ITFunctionsAudit
-{
-    private static CassandraClusterFacade ccf = new CassandraClusterFacade();
+public class ITFunctionsAudit {
+  private static CassandraClusterFacade ccf = new CassandraClusterFacade();
 
-    private static String testUsername;
-    private static CqlSession testSession;
+  private static String testUsername;
+  private static CqlSession testSession;
 
-    private static String basicUsername;
-    private static CqlSession basicSession;
+  private static String basicUsername;
+  private static CqlSession basicSession;
 
-    @BeforeClass
-    public static void beforeClass()
-    {
-        ccf.setup();
-        testUsername = ccf.givenUniqueSuperuserWithMinimalWhitelist();
-        testSession = ccf.createSession(testUsername);
+  @BeforeClass
+  public static void beforeClass() {
+    ccf.setup();
+    testUsername = ccf.givenUniqueSuperuserWithMinimalWhitelist();
+    testSession = ccf.createSession(testUsername);
 
-        basicUsername = ccf.givenUniqueBasicUserWithMinimalWhitelist();
-        basicSession = ccf.createSession(basicUsername);
+    basicUsername = ccf.givenUniqueBasicUserWithMinimalWhitelist();
+    basicSession = ccf.createSession(basicUsername);
 
-        ccf.givenKeyspace("funcks");
-        ccf.givenKeyspace("aggks");
-        givenStateFunction("aggks.avgState1");
-        givenFinalStateFunction("aggks.avgFinal1");
-    }
+    ccf.givenKeyspace("funcks");
+    ccf.givenKeyspace("aggks");
+    givenStateFunction("aggks.avgState1");
+    givenFinalStateFunction("aggks.avgFinal1");
+  }
 
-    @Before
-    public void before()
-    {
-        ccf.before();
-    }
+  @Before
+  public void before() {
+    ccf.before();
+  }
 
-    @After
-    public void after()
-    {
-        ccf.after();
-        ccf.resetTestUserWithMinimalWhitelist(testUsername);
-        ccf.resetTestUserWithMinimalWhitelist(basicUsername);
-    }
+  @After
+  public void after() {
+    ccf.after();
+    ccf.resetTestUserWithMinimalWhitelist(testUsername);
+    ccf.resetTestUserWithMinimalWhitelist(basicUsername);
+  }
 
-    @AfterClass
-    public static void afterClass()
-    {
-        basicSession.close();
-        testSession.close();
-        ccf.tearDown();
-    }
+  @AfterClass
+  public static void afterClass() {
+    basicSession.close();
+    testSession.close();
+    ccf.tearDown();
+  }
 
-    @SuppressWarnings("unused")
-    private Object[] parametersForFunctionStatements()
-    {
-        return new Object[]{
-            new Object[]{ createFunctionCQL("funcks.flog1"), "create", "functions/funcks" },
-            new Object[]{ "DROP FUNCTION IF EXISTS funcks.flog1(double)", "drop", "functions/funcks/flog1[DoubleType]" },
-            new Object[]{ createAggregateCQL("aggks.aaverage1"), "create", "functions/aggks" },
-            new Object[]{ "DROP AGGREGATE IF EXISTS aggks.aaverage1(int)", "drop", "functions/aggks/aaverage1[Int32Type]" },
-        };
-    }
+  @SuppressWarnings("unused")
+  private Object[] parametersForFunctionStatements() {
+    return new Object[] {
+        new Object[] {createFunctionCQL("funcks.flog1"), "create",
+                      "functions/funcks"},
+        new Object[] {"DROP FUNCTION IF EXISTS funcks.flog1(double)", "drop",
+                      "functions/funcks/flog1[DoubleType]"},
+        new Object[] {createAggregateCQL("aggks.aaverage1"), "create",
+                      "functions/aggks"},
+        new Object[] {"DROP AGGREGATE IF EXISTS aggks.aaverage1(int)", "drop",
+                      "functions/aggks/aaverage1[Int32Type]"},
+    };
+  }
 
-    @Test
-    @Parameters(method = "parametersForFunctionStatements")
-    @SuppressWarnings("unused")
-    public void statementIsLogged(String statement, String operation, String resource)
-    {
-        testSession.execute(statement);
-        ccf.thenAuditLogContainEntryForUser(statement, testUsername);
-    }
+  @Test
+  @Parameters(method = "parametersForFunctionStatements")
+  @SuppressWarnings("unused")
+  public void statementIsLogged(String statement, String operation,
+                                String resource) {
+    testSession.execute(statement);
+    ccf.thenAuditLogContainEntryForUser(statement, testUsername);
+  }
 
-    @Test
-    @Parameters(method = "parametersForFunctionStatements")
-    public void statementIsWhitelisted(String statement, String operation, String resource)
-    {
-        ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation, resource);
-        testSession.execute(statement);
-        ccf.thenAuditLogContainNothingForUser();
-    }
+  @Test
+  @Parameters(method = "parametersForFunctionStatements")
+  public void statementIsWhitelisted(String statement, String operation,
+                                     String resource) {
+    ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation,
+                                                     resource);
+    testSession.execute(statement);
+    ccf.thenAuditLogContainNothingForUser();
+  }
 
-    @Test
-    @Parameters(method = "parametersForFunctionStatements")
-    public void statementIsGrantWhitelisted(String statement, String operation, String resource)
-    {
-        ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation, "grants/" + resource);
-        testSession.execute(statement);
-        ccf.thenAuditLogContainNothingForUser();
-    }
+  @Test
+  @Parameters(method = "parametersForFunctionStatements")
+  public void statementIsGrantWhitelisted(String statement, String operation,
+                                          String resource) {
+    ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation,
+                                                     "grants/" + resource);
+    testSession.execute(statement);
+    ccf.thenAuditLogContainNothingForUser();
+  }
 
-    @Test
-    @Parameters(method = "parametersForFunctionStatements")
-    @SuppressWarnings("unused")
-    public void statementIsGrantWhitelistedUsingTopLevelGrant(String statement, String operation, String resource)
-    {
-        ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation, "grants");
-        testSession.execute(statement);
-        ccf.thenAuditLogContainNothingForUser();
-    }
+  @Test
+  @Parameters(method = "parametersForFunctionStatements")
+  @SuppressWarnings("unused")
+  public void statementIsGrantWhitelistedUsingTopLevelGrant(String statement,
+                                                            String operation,
+                                                            String resource) {
+    ccf.givenRoleIsWhitelistedForOperationOnResource(testUsername, operation,
+                                                     "grants");
+    testSession.execute(statement);
+    ccf.thenAuditLogContainNothingForUser();
+  }
 
-    @Test
-    @Parameters(method = "parametersForFunctionStatements")
-    public void statementIsLoggedWhenGrantWhitelistUnauthorized(String statement, String operation, String resource)
-    {
-        ccf.givenStatementExecutedAsSuperuserWithoutAudit(createFunctionCQL("funcks.flog1"));
-        ccf.givenStatementExecutedAsSuperuserWithoutAudit(createAggregateCQL("aggks.aaverage1"));
+  @Test
+  @Parameters(method = "parametersForFunctionStatements")
+  public void statementIsLoggedWhenGrantWhitelistUnauthorized(String statement,
+                                                              String operation,
+                                                              String resource) {
+    ccf.givenStatementExecutedAsSuperuserWithoutAudit(
+        createFunctionCQL("funcks.flog1"));
+    ccf.givenStatementExecutedAsSuperuserWithoutAudit(
+        createAggregateCQL("aggks.aaverage1"));
 
-        ccf.givenRoleIsWhitelistedForOperationOnResource(basicUsername, operation, "grants/" + resource);
-        assertThatExceptionOfType(UnauthorizedException.class)
-            .isThrownBy(() -> basicSession.execute(statement));
-        ccf.thenAuditLogContainsFailedEntriesForUser(statement, basicUsername);
-    }
+    ccf.givenRoleIsWhitelistedForOperationOnResource(basicUsername, operation,
+                                                     "grants/" + resource);
+    assertThatExceptionOfType(UnauthorizedException.class)
+        .isThrownBy(() -> basicSession.execute(statement));
+    ccf.thenAuditLogContainsFailedEntriesForUser(statement, basicUsername);
+  }
 
-    private static void givenStateFunction(String func)
-    {
-        ccf.givenStatementExecutedAsSuperuserWithoutAudit(
-        "CREATE FUNCTION " + func + " (state tuple<int, bigint>, val int) " +
-        "CALLED ON NULL INPUT " +
-        "RETURNS tuple<int, bigint> LANGUAGE java AS " +
-        "'" +
-        "if (val != null)" +
-        "{" +
-        " state.setInt(0, state.getInt(0) + 1);" +
-        " state.setLong(1, state.getLong(1) + val.intValue());" +
-        "}" +
-        "return state;" +
-        "'");
-    }
+  private static void givenStateFunction(String func) {
+    ccf.givenStatementExecutedAsSuperuserWithoutAudit(
+        "CREATE FUNCTION " + func + " (state tuple<int, bigint>, val int) "
+        + "CALLED ON NULL INPUT "
+        + "RETURNS tuple<int, bigint> LANGUAGE java AS "
+        + "'"
+        + "if (val != null)"
+        + "{"
+        + " state.setInt(0, state.getInt(0) + 1);"
+        + " state.setLong(1, state.getLong(1) + val.intValue());"
+        + "}"
+        + "return state;"
+        + "'");
+  }
 
-    private static void givenFinalStateFunction(String func)
-    {
-        ccf.givenStatementExecutedAsSuperuserWithoutAudit(
-        "CREATE FUNCTION " + func + " (state tuple<int, bigint>) " +
-        "CALLED ON NULL INPUT " +
-        "RETURNS double LANGUAGE java AS " +
-        "'" +
-        "double r = 0;" +
-        "if (state.getInt(0) == 0)" +
-        "{" +
-        " return null;" +
-        "}" +
-        "r = state.getLong(1);" +
-        "r/= state.getInt(0);" +
-        "return Double.valueOf(r);" +
-        "'");
-    }
+  private static void givenFinalStateFunction(String func) {
+    ccf.givenStatementExecutedAsSuperuserWithoutAudit(
+        "CREATE FUNCTION " + func + " (state tuple<int, bigint>) "
+        + "CALLED ON NULL INPUT "
+        + "RETURNS double LANGUAGE java AS "
+        + "'"
+        + "double r = 0;"
+        + "if (state.getInt(0) == 0)"
+        + "{"
+        + " return null;"
+        + "}"
+        + "r = state.getLong(1);"
+        + "r/= state.getInt(0);"
+        + "return Double.valueOf(r);"
+        + "'");
+  }
 
-    private static String createFunctionCQL(String name)
-    {
-        return "CREATE FUNCTION IF NOT EXISTS " + name + " (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java AS 'return Double.valueOf(Math.log(input.doubleValue()));'";
-    }
+  private static String createFunctionCQL(String name) {
+    return "CREATE FUNCTION IF NOT EXISTS " + name +
+        (" (input double) CALLED ON NULL INPUT RETURNS double LANGUAGE java " +
+         "AS 'return Double.valueOf(Math.log(input.doubleValue()));'");
+  }
 
-    private static String createAggregateCQL(String name)
-    {
-        return "CREATE AGGREGATE IF NOT EXISTS " + name + " (int) SFUNC avgState1 STYPE tuple<int,bigint> FINALFUNC avgFinal1 INITCOND (0,0)";
-    }
+  private static String createAggregateCQL(String name) {
+    return "CREATE AGGREGATE IF NOT EXISTS " + name +
+        (" (int) SFUNC avgState1 STYPE tuple<int,bigint> FINALFUNC avgFinal1 " +
+         "INITCOND (0,0)");
+  }
 }

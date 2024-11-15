@@ -15,86 +15,80 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.common.chronicle;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.ericsson.bss.cassandra.ecaudit.common.record.Status;
+import com.ericsson.bss.cassandra.ecaudit.common.record.StoredAuditRecord;
 import java.io.File;
 import java.net.InetAddress;
 import java.util.UUID;
-
+import net.openhft.chronicle.queue.ChronicleQueue;
+import net.openhft.chronicle.queue.ExcerptTailer;
+import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.ericsson.bss.cassandra.ecaudit.common.record.Status;
-import com.ericsson.bss.cassandra.ecaudit.common.record.StoredAuditRecord;
+public class TestReadVersion0 {
+  private static ChronicleQueue chronicleQueue;
+  private static ExcerptTailer tailer;
 
-import net.openhft.chronicle.queue.ChronicleQueue;
-import net.openhft.chronicle.queue.ExcerptTailer;
-import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class TestReadVersion0
-{
-    private static ChronicleQueue chronicleQueue;
-    private static ExcerptTailer tailer;
-
-    @BeforeClass
-    public static void beforeClass()
-    {
-        File queueDirVersion0 = new File("src/test/resources/q0");
-        chronicleQueue = SingleChronicleQueueBuilder
-                         .single(queueDirVersion0)
+  @BeforeClass
+  public static void beforeClass() {
+    File queueDirVersion0 = new File("src/test/resources/q0");
+    chronicleQueue = SingleChronicleQueueBuilder.single(queueDirVersion0)
                          .blockSize(1024)
                          .readOnly(true)
                          .build();
-        tailer = chronicleQueue.createTailer();
-    }
+    tailer = chronicleQueue.createTailer();
+  }
 
-    @AfterClass
-    public static void afterClass()
-    {
-        chronicleQueue.close();
-    }
+  @AfterClass
+  public static void afterClass() {
+    chronicleQueue.close();
+  }
 
-    @Test
-    public void test() throws Exception
-    {
-        readSingle();
-        readBatch();
-    }
+  @Test
+  public void test() throws Exception {
+    readSingle();
+    readBatch();
+  }
 
-    private void readSingle() throws Exception
-    {
-        StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
+  private void readSingle() throws Exception {
+    StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
 
-        assertThat(actualAuditRecord.getBatchId()).isEmpty();
-        assertThat(actualAuditRecord.getClientAddress()).contains(InetAddress.getByName("0.1.2.3"));
-        assertThat(actualAuditRecord.getClientPort()).contains(777);
-        assertThat(actualAuditRecord.getStatus()).contains(Status.FAILED);
-        assertThat(actualAuditRecord.getOperation()).contains("SELECT SOMETHING");
-        assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
-        assertThat(actualAuditRecord.getUser()).contains("bob");
-        assertThat(actualAuditRecord.getTimestamp()).contains(1554188832323L);
-    }
+    assertThat(actualAuditRecord.getBatchId()).isEmpty();
+    assertThat(actualAuditRecord.getClientAddress())
+        .contains(InetAddress.getByName("0.1.2.3"));
+    assertThat(actualAuditRecord.getClientPort()).contains(777);
+    assertThat(actualAuditRecord.getStatus()).contains(Status.FAILED);
+    assertThat(actualAuditRecord.getOperation()).contains("SELECT SOMETHING");
+    assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
+    assertThat(actualAuditRecord.getUser()).contains("bob");
+    assertThat(actualAuditRecord.getTimestamp()).contains(1554188832323L);
+  }
 
-    private void readBatch() throws Exception
-    {
-        StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
+  private void readBatch() throws Exception {
+    StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
 
-        assertThat(actualAuditRecord.getBatchId()).contains(UUID.fromString("bd92aeb1-3373-4d6a-b65a-0d60295f66c9"));
-        assertThat(actualAuditRecord.getClientAddress()).contains(InetAddress.getByName("0.1.2.3"));
-        assertThat(actualAuditRecord.getClientPort()).contains(777);
-        assertThat(actualAuditRecord.getStatus()).contains(Status.ATTEMPT);
-        assertThat(actualAuditRecord.getOperation()).contains("SELECT SOMETHING");
-        assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
-        assertThat(actualAuditRecord.getUser()).contains("bob");
-        assertThat(actualAuditRecord.getTimestamp()).contains(1554188832013L);
-    }
+    assertThat(actualAuditRecord.getBatchId())
+        .contains(UUID.fromString("bd92aeb1-3373-4d6a-b65a-0d60295f66c9"));
+    assertThat(actualAuditRecord.getClientAddress())
+        .contains(InetAddress.getByName("0.1.2.3"));
+    assertThat(actualAuditRecord.getClientPort()).contains(777);
+    assertThat(actualAuditRecord.getStatus()).contains(Status.ATTEMPT);
+    assertThat(actualAuditRecord.getOperation()).contains("SELECT SOMETHING");
+    assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
+    assertThat(actualAuditRecord.getUser()).contains("bob");
+    assertThat(actualAuditRecord.getTimestamp()).contains(1554188832013L);
+  }
 
-    private StoredAuditRecord readAuditRecordFromChronicle()
-    {
-        AuditRecordReadMarshallable readMarshallable = new AuditRecordReadMarshallable();
+  private StoredAuditRecord readAuditRecordFromChronicle() {
+    AuditRecordReadMarshallable readMarshallable =
+        new AuditRecordReadMarshallable();
 
-        tailer.readDocument(readMarshallable);
+    tailer.readDocument(readMarshallable);
 
-        return readMarshallable.getAuditRecord();
-    }
+    return readMarshallable.getAuditRecord();
+  }
 }

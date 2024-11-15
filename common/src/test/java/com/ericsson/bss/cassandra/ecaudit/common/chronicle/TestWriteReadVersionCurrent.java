@@ -15,153 +15,160 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.common.chronicle;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.UUID;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.ericsson.bss.cassandra.ecaudit.common.record.AuditRecord;
 import com.ericsson.bss.cassandra.ecaudit.common.record.SimpleAuditOperation;
 import com.ericsson.bss.cassandra.ecaudit.common.record.SimpleAuditRecord;
 import com.ericsson.bss.cassandra.ecaudit.common.record.Status;
 import com.ericsson.bss.cassandra.ecaudit.common.record.StoredAuditRecord;
-
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.UUID;
 import net.openhft.chronicle.core.io.IORuntimeException;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.wire.WriteMarshallable;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-public class TestWriteReadVersionCurrent
-{
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+public class TestWriteReadVersionCurrent {
+  @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private ChronicleQueue chronicleQueue;
+  private ChronicleQueue chronicleQueue;
 
-    @Before
-    public void before()
-    {
-        chronicleQueue = SingleChronicleQueueBuilder.single(temporaryFolder.getRoot()).blockSize(1024).build();
-    }
+  @Before
+  public void before() {
+    chronicleQueue =
+        SingleChronicleQueueBuilder.single(temporaryFolder.getRoot())
+            .blockSize(1024)
+            .build();
+  }
 
-    @After
-    public void after()
-    {
-        chronicleQueue.close();
-    }
+  @After
+  public void after() {
+    chronicleQueue.close();
+  }
 
-    @Test
-    public void writeReadSubject() throws  Exception
-    {
-        AuditRecord expectedAuditRecord = likeGenericRecord().withSubject("bob-the-subject").build();
+  @Test
+  public void writeReadSubject() throws Exception {
+    AuditRecord expectedAuditRecord =
+        likeGenericRecord().withSubject("bob-the-subject").build();
 
-        FieldSelector fieldsWithSubject = FieldSelector.DEFAULT_FIELDS.withField(FieldSelector.Field.SUBJECT);
+    FieldSelector fieldsWithSubject =
+        FieldSelector.DEFAULT_FIELDS.withField(FieldSelector.Field.SUBJECT);
 
-        writeAuditRecordToChronicle(expectedAuditRecord, fieldsWithSubject);
+    writeAuditRecordToChronicle(expectedAuditRecord, fieldsWithSubject);
 
-        StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
+    StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
 
-        assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
-    }
+    assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
+  }
 
-    @Test
-    public void writeReadBatch() throws Exception
-    {
-        AuditRecord expectedAuditRecord = likeGenericRecord().withBatchId(UUID.randomUUID()).build();
+  @Test
+  public void writeReadBatch() throws Exception {
+    AuditRecord expectedAuditRecord =
+        likeGenericRecord().withBatchId(UUID.randomUUID()).build();
 
-        writeAuditRecordToChronicle(expectedAuditRecord);
+    writeAuditRecordToChronicle(expectedAuditRecord);
 
-        StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
+    StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
 
-        assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
-    }
+    assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
+  }
 
-    @Test
-    public void writeReadSingle() throws Exception
-    {
-        AuditRecord expectedAuditRecord = likeGenericRecord().withStatus(Status.FAILED).build();
+  @Test
+  public void writeReadSingle() throws Exception {
+    AuditRecord expectedAuditRecord =
+        likeGenericRecord().withStatus(Status.FAILED).build();
 
-        writeAuditRecordToChronicle(expectedAuditRecord);
+    writeAuditRecordToChronicle(expectedAuditRecord);
 
-        StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
+    StoredAuditRecord actualAuditRecord = readAuditRecordFromChronicle();
 
-        assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
-    }
+    assertThatRecordsMatch(actualAuditRecord, expectedAuditRecord);
+  }
 
-    @Test
-    public void tryReuseOnRead() throws Exception
-    {
-        AuditRecord expectedAuditRecord = likeGenericRecord().build();
+  @Test
+  public void tryReuseOnRead() throws Exception {
+    AuditRecord expectedAuditRecord = likeGenericRecord().build();
 
-        writeAuditRecordToChronicle(expectedAuditRecord);
-        writeAuditRecordToChronicle(expectedAuditRecord);
+    writeAuditRecordToChronicle(expectedAuditRecord);
+    writeAuditRecordToChronicle(expectedAuditRecord);
 
-        AuditRecordReadMarshallable readMarshallable = new AuditRecordReadMarshallable();
+    AuditRecordReadMarshallable readMarshallable =
+        new AuditRecordReadMarshallable();
 
-        ExcerptTailer tailer = chronicleQueue.createTailer();
-        tailer.readDocument(readMarshallable);
+    ExcerptTailer tailer = chronicleQueue.createTailer();
+    tailer.readDocument(readMarshallable);
 
-        assertThatExceptionOfType(IORuntimeException.class)
+    assertThatExceptionOfType(IORuntimeException.class)
         .isThrownBy(() -> tailer.readDocument(readMarshallable))
         .withMessage("Tried to read from wire with used marshallable");
-    }
+  }
 
-    private SimpleAuditRecord.Builder likeGenericRecord() throws UnknownHostException
-    {
-        return SimpleAuditRecord
-        .builder()
-        .withClientAddress(new InetSocketAddress(InetAddress.getByName("0.1.2.3"), 876))
+  private SimpleAuditRecord.Builder likeGenericRecord()
+      throws UnknownHostException {
+    return SimpleAuditRecord.builder()
+        .withClientAddress(
+            new InetSocketAddress(InetAddress.getByName("0.1.2.3"), 876))
         .withCoordinatorAddress(InetAddress.getByName("4.5.6.7"))
         .withStatus(Status.ATTEMPT)
         .withOperation(new SimpleAuditOperation("SELECT SOMETHING"))
         .withUser("bob")
         .withTimestamp(System.currentTimeMillis());
-    }
+  }
 
-    private void writeAuditRecordToChronicle(AuditRecord auditRecord)
-    {
-        writeAuditRecordToChronicle(auditRecord, FieldSelector.DEFAULT_FIELDS);
-    }
+  private void writeAuditRecordToChronicle(AuditRecord auditRecord) {
+    writeAuditRecordToChronicle(auditRecord, FieldSelector.DEFAULT_FIELDS);
+  }
 
-    private void writeAuditRecordToChronicle(AuditRecord auditRecord, FieldSelector fields)
-    {
-        WriteMarshallable writeMarshallable = new AuditRecordWriteMarshallable(auditRecord, fields);
+  private void writeAuditRecordToChronicle(AuditRecord auditRecord,
+                                           FieldSelector fields) {
+    WriteMarshallable writeMarshallable =
+        new AuditRecordWriteMarshallable(auditRecord, fields);
 
-        ExcerptAppender appender = chronicleQueue.acquireAppender();
-        appender.writeDocument(writeMarshallable);
-    }
+    ExcerptAppender appender = chronicleQueue.acquireAppender();
+    appender.writeDocument(writeMarshallable);
+  }
 
-    private StoredAuditRecord readAuditRecordFromChronicle()
-    {
-        AuditRecordReadMarshallable readMarshallable = new AuditRecordReadMarshallable();
+  private StoredAuditRecord readAuditRecordFromChronicle() {
+    AuditRecordReadMarshallable readMarshallable =
+        new AuditRecordReadMarshallable();
 
-        ExcerptTailer tailer = chronicleQueue.createTailer();
-        tailer.readDocument(readMarshallable);
+    ExcerptTailer tailer = chronicleQueue.createTailer();
+    tailer.readDocument(readMarshallable);
 
-        return readMarshallable.getAuditRecord();
-    }
+    return readMarshallable.getAuditRecord();
+  }
 
-    private void assertThatRecordsMatch(StoredAuditRecord actualAuditRecord, AuditRecord expectedAuditRecord)
-    {
-        assertThat(actualAuditRecord.getBatchId()).isEqualTo(expectedAuditRecord.getBatchId());
-        assertThat(actualAuditRecord.getClientAddress()).contains(expectedAuditRecord.getClientAddress().getAddress());
-        assertThat(actualAuditRecord.getClientPort()).contains(expectedAuditRecord.getClientAddress().getPort());
-        assertThat(actualAuditRecord.getCoordinatorAddress()).contains(expectedAuditRecord.getCoordinatorAddress());
-        assertThat(actualAuditRecord.getStatus()).contains(expectedAuditRecord.getStatus());
-        assertThat(actualAuditRecord.getOperation()).contains(expectedAuditRecord.getOperation().getOperationString());
-        assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
-        assertThat(actualAuditRecord.getUser()).contains(expectedAuditRecord.getUser());
-        assertThat(actualAuditRecord.getTimestamp()).contains(expectedAuditRecord.getTimestamp());
-        assertThat(actualAuditRecord.getSubject()).isEqualTo(expectedAuditRecord.getSubject());
-    }
+  private void assertThatRecordsMatch(StoredAuditRecord actualAuditRecord,
+                                      AuditRecord expectedAuditRecord) {
+    assertThat(actualAuditRecord.getBatchId())
+        .isEqualTo(expectedAuditRecord.getBatchId());
+    assertThat(actualAuditRecord.getClientAddress())
+        .contains(expectedAuditRecord.getClientAddress().getAddress());
+    assertThat(actualAuditRecord.getClientPort())
+        .contains(expectedAuditRecord.getClientAddress().getPort());
+    assertThat(actualAuditRecord.getCoordinatorAddress())
+        .contains(expectedAuditRecord.getCoordinatorAddress());
+    assertThat(actualAuditRecord.getStatus())
+        .contains(expectedAuditRecord.getStatus());
+    assertThat(actualAuditRecord.getOperation())
+        .contains(expectedAuditRecord.getOperation().getOperationString());
+    assertThat(actualAuditRecord.getNakedOperation()).isEmpty();
+    assertThat(actualAuditRecord.getUser())
+        .contains(expectedAuditRecord.getUser());
+    assertThat(actualAuditRecord.getTimestamp())
+        .contains(expectedAuditRecord.getTimestamp());
+    assertThat(actualAuditRecord.getSubject())
+        .isEqualTo(expectedAuditRecord.getSubject());
+  }
 }

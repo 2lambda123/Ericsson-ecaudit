@@ -6,13 +6,15 @@
 With ecAudit you get auditing and query logger functionality for Apache Cassandra 3.0, 3.11 and 4.0.
 
 Features include:
-* Detailed audit records for CQL operations and login attempts
-* Customizable audit record format
-* Obfuscation of sensitive password information
-* Powerful filtering with centralized or local whitelists
-* Logger backends with SLF4J/Logback or Chronicle
+
+- Detailed audit records for CQL operations and login attempts
+- Customizable audit record format
+- Obfuscation of sensitive password information
+- Powerful filtering with centralized or local whitelists
+- Logger backends with SLF4J/Logback or Chronicle
 
 Example of audit records created by ecAudit:
+
 ```
 15:42:41.644 - client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'INSERT INTO ecks.ectbl (partk, clustk, value) VALUES (?, ?, ?)[1, '1', 'valid']'
 15:42:41.646 - client:'127.0.0.1'|user:'cassandra'|status:'ATTEMPT'|operation:'SELECT * FROM ecks.ectbl WHERE partk = ?[1]'
@@ -24,11 +26,9 @@ Example of audit records created by ecAudit:
 
 Checkout the detailed [description](doc/description.md) for a more comprehensive list of features, limitations and operational impact.
 
-
 ## Getting Started
 
 ecAudit integrates with Apache Cassandra using its existing plug-in points.
-
 
 ### Download
 
@@ -42,13 +42,11 @@ Get the ecAudit flavor for your Cassandra version.
 
 For a detailed description of compatible Cassandra versions, refer to the [Cassandra Compatibility Matrix](doc/cassandra_compatibility.md).
 
-
 #### Maintenance
 
 The following flavors of ecAudit are in maintenance mode and will get critical fixes, but no new features.
 
 [![ecAudit for Cassandra 3.0.<latest>](https://img.shields.io/maven-central/v/com.ericsson.bss.cassandra.ecaudit/ecaudit_c3.0.svg?label=ecAudit%20for%20Cassandra%203.0.<latest>)](https://central.sonatype.com/search?q=g:com.ericsson.bss.cassandra.ecaudit%20AND%20a:ecaudit_c3.0)
-
 
 #### Archive
 
@@ -57,28 +55,25 @@ The following flavors of ecAudit are no longer maintained.
 [![ecAudit for Cassandra 3.0.11](https://img.shields.io/maven-central/v/com.ericsson.bss.cassandra.ecaudit/ecaudit_c3.0.11.svg?label=ecAudit%20for%20Cassandra%203.0.11)](https://central.sonatype.com/search?q=g:com.ericsson.bss.cassandra.ecaudit%20AND%20a:ecaudit_c3.0.11)
 [![ecAudit for Cassandra 2.2.<latest>](https://img.shields.io/maven-central/v/com.ericsson.bss.cassandra.ecaudit/ecaudit_c2.2.svg?label=ecAudit%20for%20Cassandra%202.2)](https://central.sonatype.com/search?q=g:com.ericsson.bss.cassandra.ecaudit%20AND%20a:ecaudit_c2.2)
 
-
 ### Setup
 
 Install and configure ecAudit using the setup guide for your Cassandra version.
 
-* [ecAudit Setup Guide for Cassandra 5.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/master/doc/setup.md)
-* [ecAudit Setup Guide for Cassandra 4.1.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.1/doc/setup.md)
-* [ecAudit Setup Guide for Cassandra 4.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.0/doc/setup.md)
-* [ecAudit Setup Guide for Cassandra 3.11.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.11/doc/setup.md)
-* [ecAudit Setup Guide for Cassandra 3.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.0/doc/setup.md)
-
+- [ecAudit Setup Guide for Cassandra 5.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/master/doc/setup.md)
+- [ecAudit Setup Guide for Cassandra 4.1.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.1/doc/setup.md)
+- [ecAudit Setup Guide for Cassandra 4.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.0/doc/setup.md)
+- [ecAudit Setup Guide for Cassandra 3.11.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.11/doc/setup.md)
+- [ecAudit Setup Guide for Cassandra 3.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.0/doc/setup.md)
 
 ### Upgrade
 
 Upgrade ecAudit using then upgrade guide for your Cassandra version
 
-* [ecAudit Upgrade Guide for Cassandra 5.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/master/UPGRADING.md)
-* [ecAudit Upgrade Guide for Cassandra 4.1.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.1/UPGRADING.md)
-* [ecAudit Upgrade Guide for Cassandra 4.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.0/UPGRADING.md)
-* [ecAudit Upgrade Guide for Cassandra 3.11.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.11/UPGRADING.md)
-* [ecAudit Upgrade Guide for Cassandra 3.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.0/UPGRADING.md)
-
+- [ecAudit Upgrade Guide for Cassandra 5.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/master/UPGRADING.md)
+- [ecAudit Upgrade Guide for Cassandra 4.1.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.1/UPGRADING.md)
+- [ecAudit Upgrade Guide for Cassandra 4.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c4.0/UPGRADING.md)
+- [ecAudit Upgrade Guide for Cassandra 3.11.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.11/UPGRADING.md)
+- [ecAudit Upgrade Guide for Cassandra 3.0.\<latest>](https://github.com/Ericsson/ecaudit/blob/release/c3.0/UPGRADING.md)
 
 ## Issues & Contributions
 
@@ -87,20 +82,18 @@ Report an issue if you're having trouble to use ecAudit or have an idea for an i
 Want to contribute to ecAudit?
 Check out our [contribution guide](CONTRIBUTING.md).
 
-
 ## Credits
 
 The following developers have contributed to the ecAudit project:
 
-* Per Otterström
-* Tobias Eriksson
-* Laxmikant Upadhyay
-* Anuj Wadhera
-* Marcus Olsson
-* Ted Petersson
-* Pushpendra Rajpoot
-* Tommy Stendahl
-
+- Per Otterström
+- Tobias Eriksson
+- Laxmikant Upadhyay
+- Anuj Wadhera
+- Marcus Olsson
+- Ted Petersson
+- Pushpendra Rajpoot
+- Tommy Stendahl
 
 ## License
 

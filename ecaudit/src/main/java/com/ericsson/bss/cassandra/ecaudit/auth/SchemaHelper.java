@@ -16,103 +16,89 @@
 package com.ericsson.bss.cassandra.ecaudit.auth;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.cassandra.gms.ApplicationState;
 import org.apache.cassandra.gms.EndpointState;
 import org.apache.cassandra.gms.Gossiper;
 import org.apache.cassandra.locator.InetAddressAndPort;
 import org.apache.cassandra.utils.FBUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class SchemaHelper
-{
-    private static final Logger LOG = LoggerFactory.getLogger(SchemaHelper.class);
+class SchemaHelper {
+  private static final Logger LOG = LoggerFactory.getLogger(SchemaHelper.class);
 
-    private static final long RETRY_INTERVAL_MS = 1000;
+  private static final long RETRY_INTERVAL_MS = 1000;
 
-    private final InetAddressAndPort localAddress;
-    private final Gossiper gossiper;
-    private final long retryIntervalMillis;
+  private final InetAddressAndPort localAddress;
+  private final Gossiper gossiper;
+  private final long retryIntervalMillis;
 
-    SchemaHelper()
-    {
-        this(FBUtilities.getBroadcastAddressAndPort(), Gossiper.instance, RETRY_INTERVAL_MS);
-    }
+  SchemaHelper() {
+    this(FBUtilities.getBroadcastAddressAndPort(), Gossiper.instance,
+         RETRY_INTERVAL_MS);
+  }
 
-    @VisibleForTesting
-    SchemaHelper(InetAddressAndPort inetAddress, Gossiper gossiper, long retryIntervalMillis)
-    {
-        this.localAddress = inetAddress;
-        this.gossiper = gossiper;
-        this.retryIntervalMillis = retryIntervalMillis;
-    }
+  @VisibleForTesting
+  SchemaHelper(InetAddressAndPort inetAddress, Gossiper gossiper,
+               long retryIntervalMillis) {
+    this.localAddress = inetAddress;
+    this.gossiper = gossiper;
+    this.retryIntervalMillis = retryIntervalMillis;
+  }
 
-    boolean areSchemasAligned(long schemaAlignmentDelayMillis)
-    {
-        LOG.info("Waiting for schema to align in cluster");
+  boolean areSchemasAligned(long schemaAlignmentDelayMillis) {
+    LOG.info("Waiting for schema to align in cluster");
 
-        long delayMillis = 0;
-        while (areLiveNodesWaitingOnSchemaUpdate())
-        {
-            if (delayMillis >= schemaAlignmentDelayMillis)
-            {
-                return false;
-            }
-            delayMillis += retryIntervalMillis;
-
-            try
-            {
-                Thread.sleep(retryIntervalMillis);
-            }
-            catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean areLiveNodesWaitingOnSchemaUpdate()
-    {
-        String localSchemaId = tryGetSchemaId(localAddress);
-        if (localSchemaId == null)
-        {
-            return true;
-        }
-
-        for (InetAddressAndPort memberAddress : gossiper.getLiveMembers())
-        {
-            if (isRemoteEndpoint(memberAddress) && isDifferentSchema(localSchemaId, memberAddress))
-            {
-                LOG.debug("Waiting for schema alignment at endpoint {}", memberAddress);
-                return true;
-            }
-        }
-
+    long delayMillis = 0;
+    while (areLiveNodesWaitingOnSchemaUpdate()) {
+      if (delayMillis >= schemaAlignmentDelayMillis) {
         return false;
+      }
+      delayMillis += retryIntervalMillis;
+
+      try {
+        Thread.sleep(retryIntervalMillis);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      }
     }
 
-    private String tryGetSchemaId(InetAddressAndPort address)
-    {
-        EndpointState endpointState = gossiper.getEndpointStateForEndpoint(address);
-        if (endpointState == null)
-        {
-            return null;
-        }
-        return endpointState.getApplicationState(ApplicationState.SCHEMA).value;
+    return true;
+  }
+
+  private boolean areLiveNodesWaitingOnSchemaUpdate() {
+    String localSchemaId = tryGetSchemaId(localAddress);
+    if (localSchemaId == null) {
+      return true;
     }
 
-    private boolean isRemoteEndpoint(InetAddressAndPort memberAddress)
-    {
-        return !memberAddress.equals(localAddress);
+    for (InetAddressAndPort memberAddress : gossiper.getLiveMembers()) {
+      if (isRemoteEndpoint(memberAddress) &&
+          isDifferentSchema(localSchemaId, memberAddress)) {
+        LOG.debug("Waiting for schema alignment at endpoint {}", memberAddress);
+        return true;
+      }
     }
 
-    private boolean isDifferentSchema(String localSchemaId, InetAddressAndPort memberAddress)
-    {
-        String remoteSchemaId = tryGetSchemaId(memberAddress);
-        return !localSchemaId.equals(remoteSchemaId);
+    return false;
+  }
+
+  private String tryGetSchemaId(InetAddressAndPort address) {
+    EndpointState endpointState = gossiper.getEndpointStateForEndpoint(address);
+    if (endpointState == null) {
+      return null;
     }
+    return endpointState.getApplicationState(ApplicationState.SCHEMA).value;
+  }
+
+  private boolean isRemoteEndpoint(InetAddressAndPort memberAddress) {
+    return !memberAddress.equals(localAddress);
+  }
+
+  private boolean isDifferentSchema(String localSchemaId,
+                                    InetAddressAndPort memberAddress) {
+    String remoteSchemaId = tryGetSchemaId(memberAddress);
+    return !localSchemaId.equals(remoteSchemaId);
+  }
 }

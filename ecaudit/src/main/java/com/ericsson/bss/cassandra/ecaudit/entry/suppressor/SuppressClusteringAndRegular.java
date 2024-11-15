@@ -17,23 +17,20 @@ package com.ericsson.bss.cassandra.ecaudit.entry.suppressor;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
-
 import org.apache.cassandra.cql3.ColumnSpecification;
 import org.apache.cassandra.schema.ColumnMetadata;
 
-public class SuppressClusteringAndRegular extends AbstractSuppressor
-{
-    @Override
-    public Optional<String> suppress(ColumnSpecification column, ByteBuffer value)
-    {
-        return isClusteringOrRegular(column)
-               ? Optional.of(suppressWithType(column))
-               : Optional.empty();
-    }
+public class SuppressClusteringAndRegular extends AbstractSuppressor {
+  @Override
+  public Optional<String> suppress(ColumnSpecification column,
+                                   ByteBuffer value) {
+    return isClusteringOrRegular(column) ? Optional.of(suppressWithType(column))
+                                         : Optional.empty();
+  }
 
-    private static boolean isClusteringOrRegular(ColumnSpecification column)
-    {
-        return column instanceof ColumnMetadata
-               && (((ColumnMetadata) column).isClusteringColumn() || ((ColumnMetadata) column).isRegular());
-    }
+  private static boolean isClusteringOrRegular(ColumnSpecification column) {
+    return column instanceof ColumnMetadata &&
+        (((ColumnMetadata)column).isClusteringColumn() ||
+         ((ColumnMetadata)column).isRegular());
+  }
 }
