@@ -92,8 +92,8 @@ public class PrepareAuditQueryLogger {
     assertThat(getLogEntries())
         .containsOnly(
             "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
-                + "Prepared: INSERT INTO school.students (key, value) VALUES " +
-                  "(?, ?)'",
+                + "Prepared: INSERT INTO school.students (key, value) VALUES "
+                + "(?, ?)'",
             "client:'127.0.0.1'|user:'anonymous'|status:'ATTEMPT'|operation:'"
                 + "INSERT INTO school.students (key, value) VALUES (?, ?)[42, "
                 + "'Kalle']'");
