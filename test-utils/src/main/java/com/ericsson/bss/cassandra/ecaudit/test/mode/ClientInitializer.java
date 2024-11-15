@@ -15,32 +15,27 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.test.mode;
 
+import static org.mockito.Mockito.mock;
+
 import org.apache.cassandra.auth.IAuthenticator;
 import org.apache.cassandra.auth.IAuthorizer;
 import org.apache.cassandra.auth.INetworkAuthorizer;
 import org.apache.cassandra.config.DatabaseDescriptor;
 
-import static org.mockito.Mockito.mock;
+public final class ClientInitializer {
+  private ClientInitializer() {}
 
-public final class ClientInitializer
-{
-    private ClientInitializer()
-    {
-    }
+  public static void beforeClass() {
+    DatabaseDescriptor.clientInitialization(true);
+    DatabaseDescriptor.setAuthenticator(mock(IAuthenticator.class));
+    DatabaseDescriptor.setAuthorizer(mock(IAuthorizer.class));
+    DatabaseDescriptor.setNetworkAuthorizer(mock(INetworkAuthorizer.class));
+  }
 
-    public static void beforeClass()
-    {
-        DatabaseDescriptor.clientInitialization(true);
-        DatabaseDescriptor.setAuthenticator(mock(IAuthenticator.class));
-        DatabaseDescriptor.setAuthorizer(mock(IAuthorizer.class));
-        DatabaseDescriptor.setNetworkAuthorizer(mock(INetworkAuthorizer.class));
-    }
-
-    public static void afterClass()
-    {
-        DatabaseDescriptor.setNetworkAuthorizer(null);
-        DatabaseDescriptor.setAuthorizer(null);
-        DatabaseDescriptor.setAuthenticator(null);
-        DatabaseDescriptor.clientInitialization(false);
-    }
+  public static void afterClass() {
+    DatabaseDescriptor.setNetworkAuthorizer(null);
+    DatabaseDescriptor.setAuthorizer(null);
+    DatabaseDescriptor.setAuthenticator(null);
+    DatabaseDescriptor.clientInitialization(false);
+  }
 }

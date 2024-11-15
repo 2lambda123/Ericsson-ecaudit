@@ -15,44 +15,45 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.entry.suppressor;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
 import java.nio.ByteBuffer;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.cassandra.cql3.ColumnSpecification;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.schema.ColumnMetadata;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests the {@link SuppressEverything} class.
  */
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class TestSuppressEverything
-{
-    private static final ColumnSpecification TEXT_KEY_COLUMN = ColumnMetadata.partitionKeyColumn("ks", "cf", "partitionKey", UTF8Type.instance, 1);
-    private static final ColumnSpecification INT_REGULAR_COLUMN = ColumnMetadata.regularColumn("ks", "cf", "regular", Int32Type.instance);
+public class TestSuppressEverything {
+  private static final ColumnSpecification TEXT_KEY_COLUMN =
+      ColumnMetadata.partitionKeyColumn("ks", "cf", "partitionKey",
+                                        UTF8Type.instance, 1);
+  private static final ColumnSpecification INT_REGULAR_COLUMN =
+      ColumnMetadata.regularColumn("ks", "cf", "regular", Int32Type.instance);
 
-    @Mock
-    ByteBuffer valueMock;
+  @Mock ByteBuffer valueMock;
 
-    @Test
-    public void testSuppressorAlwaysReturnsType()
-    {
-        // Given
-        BoundValueSuppressor suppressor = new SuppressEverything();
-        // When
-        Optional<String> textResult = suppressor.suppress(TEXT_KEY_COLUMN, valueMock);
-        Optional<String> integerResult = suppressor.suppress(INT_REGULAR_COLUMN, valueMock);
-        // Then
-        assertThat(textResult).contains("<text>");
-        assertThat(integerResult).contains("<int>");
-        verifyZeroInteractions(valueMock);
-    }
+  @Test
+  public void testSuppressorAlwaysReturnsType() {
+    // Given
+    BoundValueSuppressor suppressor = new SuppressEverything();
+    // When
+    Optional<String> textResult =
+        suppressor.suppress(TEXT_KEY_COLUMN, valueMock);
+    Optional<String> integerResult =
+        suppressor.suppress(INT_REGULAR_COLUMN, valueMock);
+    // Then
+    assertThat(textResult).contains("<text>");
+    assertThat(integerResult).contains("<int>");
+    verifyZeroInteractions(valueMock);
+  }
 }

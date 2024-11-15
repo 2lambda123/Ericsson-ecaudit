@@ -24,90 +24,79 @@ import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 /**
  * Read AuditRecord entries from a Chronicle queue.
  *
- * The Chronicle queue is opened and scanned as defined by the supplied ToolOptions.
+ * The Chronicle queue is opened and scanned as defined by the supplied
+ * ToolOptions.
  */
-public class QueueReader
-{
-    private final ExcerptTailer tailer;
+public class QueueReader {
+  private final ExcerptTailer tailer;
 
-    private StoredAuditRecord nextRecord;
+  private StoredAuditRecord nextRecord;
 
-    public QueueReader(ToolOptions toolOptions)
-    {
-        this(toolOptions, getChronicleQueue(toolOptions));
+  public QueueReader(ToolOptions toolOptions) {
+    this(toolOptions, getChronicleQueue(toolOptions));
+  }
+
+  // Visible for testing
+  QueueReader(ToolOptions toolOptions, ChronicleQueue chronicleQueue) {
+    tailer = getExcerptTailer(toolOptions, chronicleQueue);
+  }
+
+  private static ChronicleQueue getChronicleQueue(ToolOptions toolOptions) {
+    SingleChronicleQueueBuilder chronicleBuilder =
+        SingleChronicleQueueBuilder.single(toolOptions.path().toFile())
+            .readOnly(true);
+    toolOptions.rollCycle().ifPresent(chronicleBuilder::rollCycle);
+
+    try {
+      return chronicleBuilder.build();
+    } catch (IllegalArgumentException e) {
+      System.err.println(e.getMessage()); // NOPMD
+      System.exit(2);                     // NOPMD
+      return null;
+    }
+  }
+
+  private static ExcerptTailer getExcerptTailer(ToolOptions toolOptions,
+                                                ChronicleQueue chronicle) {
+    ExcerptTailer tempTailer = chronicle.createTailer();
+
+    if (toolOptions.tail().isPresent()) {
+      long startIndex = tempTailer.index();
+
+      tempTailer = tempTailer.toEnd(); // NOPMD
+
+      long newIndex = tempTailer.index() - toolOptions.tail().get();
+      newIndex = Math.max(newIndex, startIndex);
+
+      tempTailer.moveToIndex(newIndex);
     }
 
-    // Visible for testing
-    QueueReader(ToolOptions toolOptions, ChronicleQueue chronicleQueue)
-    {
-        tailer = getExcerptTailer(toolOptions, chronicleQueue);
+    return tempTailer;
+  }
+
+  public boolean hasRecordAvailable() {
+    maybeReadNext();
+    return nextRecord != null;
+  }
+
+  private void maybeReadNext() {
+    if (nextRecord == null) {
+      readNext();
     }
+  }
 
-    private static ChronicleQueue getChronicleQueue(ToolOptions toolOptions)
-    {
-        SingleChronicleQueueBuilder chronicleBuilder = SingleChronicleQueueBuilder.single(toolOptions.path().toFile())
-                                                                            .readOnly(true);
-        toolOptions.rollCycle().ifPresent(chronicleBuilder::rollCycle);
-
-        try
-        {
-            return chronicleBuilder.build();
-        }
-        catch (IllegalArgumentException e)
-        {
-            System.err.println(e.getMessage()); // NOPMD
-            System.exit(2); // NOPMD
-            return null;
-        }
+  private void readNext() {
+    AuditRecordReadMarshallable recordMarshallable =
+        new AuditRecordReadMarshallable();
+    if (tailer.readDocument(recordMarshallable)) {
+      nextRecord = recordMarshallable.getAuditRecord();
     }
+  }
 
-    private static ExcerptTailer getExcerptTailer(ToolOptions toolOptions, ChronicleQueue chronicle)
-    {
-        ExcerptTailer tempTailer = chronicle.createTailer();
-
-        if (toolOptions.tail().isPresent())
-        {
-            long startIndex = tempTailer.index();
-
-            tempTailer = tempTailer.toEnd(); // NOPMD
-
-            long newIndex = tempTailer.index() - toolOptions.tail().get();
-            newIndex = Math.max(newIndex, startIndex);
-
-            tempTailer.moveToIndex(newIndex);
-        }
-
-        return tempTailer;
-    }
-
-    public boolean hasRecordAvailable()
-    {
-        maybeReadNext();
-        return nextRecord != null;
-    }
-
-    private void maybeReadNext()
-    {
-        if (nextRecord == null)
-        {
-            readNext();
-        }
-    }
-
-    private void readNext()
-    {
-        AuditRecordReadMarshallable recordMarshallable = new AuditRecordReadMarshallable();
-        if (tailer.readDocument(recordMarshallable))
-        {
-            nextRecord = recordMarshallable.getAuditRecord();
-        }
-    }
-
-    public StoredAuditRecord nextRecord()
-    {
-        maybeReadNext();
-        StoredAuditRecord entry = nextRecord;
-        nextRecord = null; // NOPMD
-        return entry;
-    }
+  public StoredAuditRecord nextRecord() {
+    maybeReadNext();
+    StoredAuditRecord entry = nextRecord;
+    nextRecord = null; // NOPMD
+    return entry;
+  }
 }

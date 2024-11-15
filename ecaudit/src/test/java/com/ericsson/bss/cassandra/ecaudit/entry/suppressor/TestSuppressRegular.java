@@ -15,66 +15,67 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.entry.suppressor;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
 import java.nio.ByteBuffer;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.apache.cassandra.cql3.ColumnSpecification;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.schema.ColumnMetadata;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests the {@link SuppressRegular} class.
  */
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class TestSuppressRegular
-{
-    private static final ColumnSpecification CLUSTER_KEY_COLUMN = ColumnMetadata.clusteringColumn("ks", "cf", "clusterKey", UTF8Type.instance, 1);
-    private static final ColumnSpecification PARTITION_KEY_COLUMN = ColumnMetadata.partitionKeyColumn("ks", "cf", "partitionKey", UTF8Type.instance, 1);
-    private static final ColumnSpecification REGULAR_COLUMN = ColumnMetadata.regularColumn("ks", "cf", "regular", UTF8Type.instance);
+public class TestSuppressRegular {
+  private static final ColumnSpecification CLUSTER_KEY_COLUMN =
+      ColumnMetadata.clusteringColumn("ks", "cf", "clusterKey",
+                                      UTF8Type.instance, 1);
+  private static final ColumnSpecification PARTITION_KEY_COLUMN =
+      ColumnMetadata.partitionKeyColumn("ks", "cf", "partitionKey",
+                                        UTF8Type.instance, 1);
+  private static final ColumnSpecification REGULAR_COLUMN =
+      ColumnMetadata.regularColumn("ks", "cf", "regular", UTF8Type.instance);
 
-    @Mock
-    ByteBuffer valueMock;
+  @Mock ByteBuffer valueMock;
 
-    @Test
-    public void testPartitionKeyIsNotSuppressed()
-    {
-        // Given
-        BoundValueSuppressor suppressor = new SuppressRegular();
-        // When
-        Optional<String> result = suppressor.suppress(PARTITION_KEY_COLUMN, valueMock);
-        // Then
-        assertThat(result).isEmpty();
-        verifyZeroInteractions(valueMock);
-    }
+  @Test
+  public void testPartitionKeyIsNotSuppressed() {
+    // Given
+    BoundValueSuppressor suppressor = new SuppressRegular();
+    // When
+    Optional<String> result =
+        suppressor.suppress(PARTITION_KEY_COLUMN, valueMock);
+    // Then
+    assertThat(result).isEmpty();
+    verifyZeroInteractions(valueMock);
+  }
 
-    @Test
-    public void testClusterKeyIsSuppressed()
-    {
-        // Given
-        BoundValueSuppressor suppressor = new SuppressRegular();
-        // When
-        Optional<String> result = suppressor.suppress(CLUSTER_KEY_COLUMN, valueMock);
-        // Then
-        assertThat(result).isEmpty();
-        verifyZeroInteractions(valueMock);
-    }
+  @Test
+  public void testClusterKeyIsSuppressed() {
+    // Given
+    BoundValueSuppressor suppressor = new SuppressRegular();
+    // When
+    Optional<String> result =
+        suppressor.suppress(CLUSTER_KEY_COLUMN, valueMock);
+    // Then
+    assertThat(result).isEmpty();
+    verifyZeroInteractions(valueMock);
+  }
 
-    @Test
-    public void testRegularIsSuppressed()
-    {
-        // Given
-        BoundValueSuppressor suppressor = new SuppressRegular();
-        // When
-        Optional<String> result = suppressor.suppress(REGULAR_COLUMN, valueMock);
-        // Then
-        assertThat(result).contains("<text>");
-        verifyZeroInteractions(valueMock);
-    }
+  @Test
+  public void testRegularIsSuppressed() {
+    // Given
+    BoundValueSuppressor suppressor = new SuppressRegular();
+    // When
+    Optional<String> result = suppressor.suppress(REGULAR_COLUMN, valueMock);
+    // Then
+    assertThat(result).contains("<text>");
+    verifyZeroInteractions(valueMock);
+  }
 }
