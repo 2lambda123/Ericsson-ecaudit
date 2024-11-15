@@ -104,14 +104,14 @@ public class WhitelistDataAccess {
         AuditAuthKeyspace.WHITELIST_TABLE_NAME_V2);
 
     addToWhitelistStatement =
-        (UpdateStatement)prepare("UPDATE %s.%s SET operations = operations + " +
-                                 "? WHERE role = ? AND resource = ?",
+        (UpdateStatement)prepare("UPDATE %s.%s SET operations = operations + "
+                                     + "? WHERE role = ? AND resource = ?",
                                  SchemaConstants.AUTH_KEYSPACE_NAME,
                                  AuditAuthKeyspace.WHITELIST_TABLE_NAME_V2);
 
     removeFromWhitelistStatement =
-        (UpdateStatement)prepare("UPDATE %s.%s SET operations = operations - " +
-                                 "? WHERE role = ? AND resource = ?",
+        (UpdateStatement)prepare("UPDATE %s.%s SET operations = operations - "
+                                     + "? WHERE role = ? AND resource = ?",
                                  SchemaConstants.AUTH_KEYSPACE_NAME,
                                  AuditAuthKeyspace.WHITELIST_TABLE_NAME_V2);
 
@@ -269,14 +269,14 @@ public class WhitelistDataAccess {
         }
       }
 
-      LOG.info("Whitelist data conversion completed. To remove this message " +
-               "- " + // NOPMD
-               "as a super user perform ALTER ROLE statement on yourself " +
-               "with OPTIONS set to { 'drop_legacy_audit_whitelist_table' : " +
-               "'now' }");
+      LOG.info("Whitelist data conversion completed. To remove this message "
+               + "- " + // NOPMD
+               "as a super user perform ALTER ROLE statement on yourself "
+               + "with OPTIONS set to { 'drop_legacy_audit_whitelist_table' : "
+               + "'now' }");
     } catch (Exception e) {
-      LOG.warn("Unable to complete conversion of legacy whitelist data " +
-               "(perhaps not enough nodes are upgraded yet). " + // NOPMD
+      LOG.warn("Unable to complete conversion of legacy whitelist data "
+                   + "(perhaps not enough nodes are upgraded yet). " + // NOPMD
                    "Conversion should not be considered complete",
                e);
     }

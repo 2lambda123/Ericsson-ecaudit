@@ -71,8 +71,8 @@ public class ITVerifyPostLogging {
 
     // Configure logger with custom/simple format
     Map<String, String> configParameters = Collections.singletonMap(
-        "log_format", "Status=${STATUS}|User=${USER}|{?Batch-ID=${BATCH_ID}|?" +
-                      "}Operation=${OPERATION}");
+        "log_format", "Status=${STATUS}|User=${USER}|{?Batch-ID=${BATCH_ID}|?"
+                          + "}Operation=${OPERATION}");
     customLogger = new Slf4jAuditLogger(configParameters, CUSTOM_LOGGER_NAME);
     // Add custom logger
     AuditAdapter.getInstance().getAuditor().addLogger(customLogger);
@@ -116,8 +116,8 @@ public class ITVerifyPostLogging {
 
     List<String> logEntries = getLogEntries();
     assertThat(logEntries)
-        .contains("Status=SUCCEEDED|User=cassandra|Operation=Authentication " +
-                  "succeeded");
+        .contains("Status=SUCCEEDED|User=cassandra|Operation=Authentication "
+                  + "succeeded");
     logEntries.forEach(s
                        -> assertThat(s)
                               .as("No attempts should be logged")
@@ -151,8 +151,8 @@ public class ITVerifyPostLogging {
     BatchStatement batchStatement =
         BatchStatement.builder(DefaultBatchType.UNLOGGED)
             .addStatement(SimpleStatement.newInstance(
-                "INSERT INTO keyspace1.table1 (key, value) VALUES (42, " +
-                "'Kalle')"))
+                "INSERT INTO keyspace1.table1 (key, value) VALUES (42, "
+                + "'Kalle')"))
             .addStatement(SimpleStatement.newInstance(
                 "UPDATE keyspace1.table1 SET value = 'Anka' WHERE key = 42"))
             .build();
@@ -183,14 +183,14 @@ public class ITVerifyPostLogging {
                                .map(this::replaceBatchIdWithConstant)
                                .collect(Collectors.toList());
     assertThat(entries).containsOnly(
-        "Status=SUCCEEDED|User=cassandra|Operation=SELECT * from " +
-        "keyspace1.table1",
-        "Status=SUCCEEDED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT " +
-        "INTO keyspace1.table1 (key, value) VALUES (42, 'Kalle')",
-        "Status=SUCCEEDED|User=cassandra|Batch-ID=<uuid>|Operation=UPDATE " +
-        "keyspace1.table1 SET value = 'Anka' WHERE key = 42",
-        "Status=SUCCEEDED|User=cassandra|Operation=SELECT * FROM " +
-        "keyspace1.table1 WHERE key = ?[42]",
+        "Status=SUCCEEDED|User=cassandra|Operation=SELECT * from "
+            + "keyspace1.table1",
+        "Status=SUCCEEDED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT "
+            + "INTO keyspace1.table1 (key, value) VALUES (42, 'Kalle')",
+        "Status=SUCCEEDED|User=cassandra|Batch-ID=<uuid>|Operation=UPDATE "
+            + "keyspace1.table1 SET value = 'Anka' WHERE key = 42",
+        "Status=SUCCEEDED|User=cassandra|Operation=SELECT * FROM "
+            + "keyspace1.table1 WHERE key = ?[42]",
         "Status=SUCCEEDED|User=cassandra|Operation=" + batch +
             "[1234, 43, 'Pelle', 43]",
         "Status=SUCCEEDED|User=cassandra|Operation=" + nonPreparedBatch);
@@ -220,10 +220,10 @@ public class ITVerifyPostLogging {
                                .map(this::replaceBatchIdWithConstant)
                                .collect(Collectors.toList());
     assertThat(entries).containsOnly(
-        "Status=FAILED|User=cassandra|Operation=SELECT * from " +
-        "NON.EXISTING_TABLE1",
-        "Status=FAILED|User=cassandra|Operation=INSERT INTO keyspace1.table1 " +
-        "(key, value) VALUES (42)");
+        "Status=FAILED|User=cassandra|Operation=SELECT * from "
+            + "NON.EXISTING_TABLE1",
+        "Status=FAILED|User=cassandra|Operation=INSERT INTO keyspace1.table1 "
+            + "(key, value) VALUES (42)");
   }
 
   @Test
@@ -248,10 +248,10 @@ public class ITVerifyPostLogging {
                                .map(this::replaceBatchIdWithConstant)
                                .collect(Collectors.toList());
     assertThat(entries).containsOnly(
-        "Status=FAILED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT INTO " +
-        "keyspace1.table1 (key, value) VALUES (?, ?)[42, 'Kalle']",
-        "Status=FAILED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT INTO " +
-        "keyspace1.table1 (key, value) VALUES (?, ?)[null, '']");
+        "Status=FAILED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT INTO "
+            + "keyspace1.table1 (key, value) VALUES (?, ?)[42, 'Kalle']",
+        "Status=FAILED|User=cassandra|Batch-ID=<uuid>|Operation=INSERT INTO "
+            + "keyspace1.table1 (key, value) VALUES (?, ?)[null, '']");
   }
 
   @Test
@@ -324,14 +324,14 @@ public class ITVerifyPostLogging {
                                .map(this::replaceBatchIdWithConstant)
                                .collect(Collectors.toList());
     assertThat(entries).containsOnly(
-        "Status=FAILED|User=cassandra|Operation=SELECT * FROM " +
-        "keyspace1.table1 WHERE key = ?[null]");
+        "Status=FAILED|User=cassandra|Operation=SELECT * FROM "
+        + "keyspace1.table1 WHERE key = ?[null]");
   }
 
   private void givenTable(String keyspace, String table) {
     session.execute("CREATE KEYSPACE IF NOT EXISTS " + keyspace +
-                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', " +
-                     "'replication_factor' : 1} AND DURABLE_WRITES = false"));
+                    (" WITH REPLICATION = {'class' : 'SimpleStrategy', "
+                     + "'replication_factor' : 1} AND DURABLE_WRITES = false"));
     session.execute("CREATE TABLE IF NOT EXISTS " + keyspace + "." + table +
                     " (key int PRIMARY KEY, value text)");
   }

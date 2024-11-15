@@ -77,8 +77,8 @@ public class ITRolesAudit {
   private Object[] parametersForRoleStatements() {
     return new Object[] {
         new Object[] {"CREATE ROLE IF NOT EXISTS " + USER +
-                          (" WITH PASSWORD = 'secret' AND LOGIN = true AND " +
-                           "SUPERUSER = true"),
+                          (" WITH PASSWORD = 'secret' AND LOGIN = true AND "
+                           + "SUPERUSER = true"),
                       "create", "roles"},
         new Object[] {"ALTER ROLE " + USER + " WITH LOGIN = false", "alter",
                       "roles/" + USER},

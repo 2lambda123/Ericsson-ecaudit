@@ -119,8 +119,8 @@ public class AuditEntryBuilderFactory {
     try {
       return createEntryBuilderForUnpreparedStatement(operation, state);
     } catch (RuntimeException e) {
-      LOG.debug("Failed to parse or prepare statement - assuming default " +
-                "permissions and resources",
+      LOG.debug("Failed to parse or prepare statement - assuming default "
+                    + "permissions and resources",
                 e);
       return createDefaultEntryBuilder().knownOperation(false);
     }
@@ -244,12 +244,12 @@ public class AuditEntryBuilderFactory {
       // This would be the result of a query towards a non-existing resource in
       // a batch statement But right now we don't get here since batch
       // statements fail pre-processing
-      LOG.error("Failed to parse and prepare BatchStatement when mapping " +
-                "single query for audit",
+      LOG.error("Failed to parse and prepare BatchStatement when mapping "
+                    + "single query for audit",
                 e);
       throw new CassandraAuditException(
-          "Failed to parse and prepare BatchStatement when mapping single " +
-          "query for audit",
+          "Failed to parse and prepare BatchStatement when mapping single "
+              + "query for audit",
           e);
     }
 

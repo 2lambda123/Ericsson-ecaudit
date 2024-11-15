@@ -97,9 +97,9 @@ public class ITVerifyCustomLogFormat {
     // Configure logger with custom format
     Map<String, String> configParameters = new HashMap<>();
     String customLogFormat =
-        "${TIMESTAMP}-> client=${CLIENT_IP}{?:${CLIENT_PORT}?}, " +
-        "coordinator=${COORDINATOR_IP}, user=${USER}, status=${STATUS}, " +
-        "operation='${OPERATION_NAKED}'{?, batch-id=${BATCH_ID}?}";
+        "${TIMESTAMP}-> client=${CLIENT_IP}{?:${CLIENT_PORT}?}, "
+        + "coordinator=${COORDINATOR_IP}, user=${USER}, status=${STATUS}, "
+        + "operation='${OPERATION_NAKED}'{?, batch-id=${BATCH_ID}?}";
     configParameters.put("log_format", customLogFormat);
     configParameters.put("time_format", "yyyy-MM-dd HH:mm:ss.SSS");
     configParameters.put("time_zone", "UTC");
@@ -134,9 +134,9 @@ public class ITVerifyCustomLogFormat {
   public void testCustomLogFormat() {
     // Given
     String createKeyspace =
-        "CREATE KEYSPACE school WITH REPLICATION = {'class' : " +
-        "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = " +
-        "false";
+        "CREATE KEYSPACE school WITH REPLICATION = {'class' : "
+        + "'SimpleStrategy', 'replication_factor' : 1} AND DURABLE_WRITES = "
+        + "false";
     String createTable =
         "CREATE TABLE school.students (name text PRIMARY KEY, grade text)";
     String insert = "INSERT INTO school.students (name, grade) VALUES (?, ?)";
@@ -180,33 +180,33 @@ public class ITVerifyCustomLogFormat {
 
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(createKeyspace));
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(createTable));
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(insert) + "', batch-id=" + UUID_REGEX);
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(update) + "', batch-id=" + UUID_REGEX);
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(batch));
     assertListContainsPattern(
         logEntries, TIMESTAMP_REGEX +
-                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, " +
-                         "user=cassandra, status=ATTEMPT, operation='") +
+                        ("-> client=127.0.0.1:[0-9]*, coordinator=127.0.0.1, "
+                         + "user=cassandra, status=ATTEMPT, operation='") +
                         Pattern.quote(nonPreparedBatch));
 
     DateTimeFormatter dateTimeFormatter =

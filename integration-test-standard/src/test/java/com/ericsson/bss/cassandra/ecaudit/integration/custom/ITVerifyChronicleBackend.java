@@ -79,8 +79,8 @@ public class ITVerifyChronicleBackend {
           " WITH PASSWORD = 'secret' AND LOGIN = true AND SUPERUSER = true");
       cassandraSession.execute(
           "ALTER ROLE " + SUITE_SUPER_USER +
-          (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : " +
-           "'connections' }"));
+          (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : "
+           + "'connections' }"));
       cassandraSession.execute(
           "ALTER ROLE " + SUITE_SUPER_USER +
           " WITH OPTIONS = { 'grant_audit_whitelist_for_create' : 'roles'}");
@@ -281,8 +281,8 @@ public class ITVerifyChronicleBackend {
   private void givenKeyspace(String keyspace) {
     superSession.execute(
         "CREATE KEYSPACE IF NOT EXISTS " + keyspace +
-        (" WITH REPLICATION = {'class' : 'SimpleStrategy', " +
-         "'replication_factor' : 1} AND DURABLE_WRITES = false"));
+        (" WITH REPLICATION = {'class' : 'SimpleStrategy', "
+         + "'replication_factor' : 1} AND DURABLE_WRITES = false"));
   }
 
   private void givenTable(String keyspace, String table) {
@@ -302,20 +302,20 @@ public class ITVerifyChronicleBackend {
         " WITH PASSWORD = 'secret' AND LOGIN = true AND SUPERUSER = true");
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : " +
-         "'connections' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : "
+         + "'connections' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_schema' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_virtual_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_virtual_schema' }"));
     return username;
   }
 
@@ -325,19 +325,19 @@ public class ITVerifyChronicleBackend {
         username + "'");
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : " +
-         "'connections' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_execute'  : "
+         + "'connections' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_schema' }"));
     superSession.execute(
         "ALTER ROLE " + username +
-        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : " +
-         "'data/system_virtual_schema' }"));
+        (" WITH OPTIONS = { 'grant_audit_whitelist_for_select'  : "
+         + "'data/system_virtual_schema' }"));
   }
 }
