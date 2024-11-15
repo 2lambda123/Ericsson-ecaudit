@@ -15,115 +15,98 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.entry;
 
-import java.nio.BufferUnderflowException;
+import com.ericsson.bss.cassandra.ecaudit.common.record.AuditOperation;
+import com.ericsson.bss.cassandra.ecaudit.entry.suppressor.BoundValueSuppressor;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import com.ericsson.bss.cassandra.ecaudit.common.record.AuditOperation;
-import com.ericsson.bss.cassandra.ecaudit.entry.suppressor.BoundValueSuppressor;
-
 import org.apache.cassandra.cql3.ColumnSpecification;
 import org.apache.cassandra.cql3.QueryOptions;
 
 /**
  * Wraps a prepared statement and the {@link QueryOptions} of an operation.
  *
- * This implementation provides lazy binding of parameters to prepared statement until the operation string is requested
- * the first time. The effective operation/statement will be cached and used on subsequent calls to
+ * This implementation provides lazy binding of parameters to prepared statement
+ * until the operation string is requested the first time. The effective
+ * operation/statement will be cached and used on subsequent calls to
  * {@link #getOperationString()}.
  *
  * This implementation is not thread safe.
  */
-public class PreparedAuditOperation implements AuditOperation
-{
-    private final String preparedStatement;
-    private final QueryOptions options;
-    private String effectiveStatement; // lazy initialization
-    private final BoundValueSuppressor boundValueSuppressor;
+public class PreparedAuditOperation implements AuditOperation {
+  private final String preparedStatement;
+  private final QueryOptions options;
+  private String effectiveStatement; // lazy initialization
+  private final BoundValueSuppressor boundValueSuppressor;
 
-    /**
-     * Construct a new prepared audit operation based on the prepared statement and options.
-     *
-     * @param preparedStatement
-     *            the prepared statement
-     * @param options
-     *            the query options of an operation
-     * @param boundValueSuppressor
-     *            the suppressor to process bound values
-     */
-    public PreparedAuditOperation(String preparedStatement, QueryOptions options, BoundValueSuppressor boundValueSuppressor)
-    {
-        this.preparedStatement = preparedStatement;
-        this.options = options;
-        this.boundValueSuppressor = boundValueSuppressor;
+  /**
+   * Construct a new prepared audit operation based on the prepared statement
+   * and options.
+   *
+   * @param preparedStatement
+   *            the prepared statement
+   * @param options
+   *            the query options of an operation
+   * @param boundValueSuppressor
+   *            the suppressor to process bound values
+   */
+  public PreparedAuditOperation(String preparedStatement, QueryOptions options,
+                                BoundValueSuppressor boundValueSuppressor) {
+    this.preparedStatement = preparedStatement;
+    this.options = options;
+    this.boundValueSuppressor = boundValueSuppressor;
+  }
+
+  @Override
+  public String getOperationString() {
+    if (effectiveStatement == null) {
+      effectiveStatement = bindValues();
     }
 
-    @Override
-    public String getOperationString()
-    {
-        if (effectiveStatement == null)
-        {
-            effectiveStatement = bindValues();
-        }
+    return effectiveStatement;
+  }
 
-        return effectiveStatement;
+  /**
+   * Bind marked values in the given prepared statement.
+   *
+   * @return the resulting query string with bound values
+   */
+  private String bindValues() {
+    if (!options.hasColumnSpecifications()) {
+      return preparedStatement;
     }
 
-    /**
-     * Bind marked values in the given prepared statement.
-     *
-     * @return the resulting query string with bound values
-     */
-    private String bindValues()
-    {
-        if (!options.hasColumnSpecifications())
-        {
-            return preparedStatement;
-        }
+    return preparedWithValues();
+  }
 
-        return preparedWithValues();
+  private String preparedWithValues() {
+    StringBuilder fullStatement = new StringBuilder(preparedStatement);
+
+    fullStatement.append('[');
+
+    Queue<ByteBuffer> values = new LinkedList<>(options.getValues());
+    for (ColumnSpecification column : options.getColumnSpecifications()) {
+      ByteBuffer value = values.remove();
+      String valueString;
+      try {
+        valueString =
+            boundValueSuppressor.suppress(column, value)
+                .orElseGet(
+                    () -> CqlLiteralFlavorAdapter.toCQLLiteral(value, column));
+      } catch (IndexOutOfBoundsException e) {
+        valueString = "null";
+      }
+      fullStatement.append(valueString).append(", ");
     }
 
-    private String preparedWithValues()
-    {
-        StringBuilder fullStatement = new StringBuilder(preparedStatement);
+    fullStatement.setLength(fullStatement.length() - 1);
+    fullStatement.setCharAt(fullStatement.length() - 1, ']');
 
-        fullStatement.append('[');
+    return fullStatement.toString();
+  }
 
-        if (options.getValues().isEmpty())
-        {
-            fullStatement.append(']');
-        }
-        else
-        {
-            Queue<ByteBuffer> values = new LinkedList<>(options.getValues());
-            for (ColumnSpecification column : options.getColumnSpecifications())
-            {
-                ByteBuffer value = values.remove();
-                String valueString;
-                try
-                {
-                    valueString = boundValueSuppressor.suppress(column, value)
-                                .orElseGet(() -> CqlLiteralFlavorAdapter.toCQLLiteral(value, column));
-                }
-                catch (BufferUnderflowException e)
-                {
-                    valueString = "null";
-                }
-                fullStatement.append(valueString).append(", ");
-            }
-
-            fullStatement.setLength(fullStatement.length() - 1);
-            fullStatement.setCharAt(fullStatement.length() - 1, ']');
-        }
-
-        return fullStatement.toString();
-    }
-
-    @Override
-    public String getNakedOperationString()
-    {
-        return preparedStatement;
-    }
+  @Override
+  public String getNakedOperationString() {
+    return preparedStatement;
+  }
 }

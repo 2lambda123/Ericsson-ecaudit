@@ -15,44 +15,47 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.common.collect.Sets;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
-import org.junit.Test;
-
 import org.apache.cassandra.auth.Permission;
 import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.SetType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.serializers.AsciiSerializer;
 import org.apache.cassandra.serializers.SetSerializer;
 import org.apache.cassandra.utils.ByteBufferUtil;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 /**
  * Tests the {@link WhitelistDataAccess} class.
  */
-public class TestWhitelistDataAccess
-{
-    @Test
-    public void testGetSerializedUpdateValues() throws Exception
-    {
-        // Given
-        Set<Permission> operations = Sets.newHashSet(Permission.SELECT, Permission.MODIFY);
-        SetSerializer<String> stringSetSerializer = SetSerializer.getInstance(AsciiSerializer.instance, AsciiType.instance);
-        // When
-        List<ByteBuffer> values = WhitelistDataAccess.getSerializedUpdateValues("Role1", "Resource1", operations);
-        // Then
-        assertThat(values).hasSize(3);
+public class TestWhitelistDataAccess {
+  @Test
+  public void testGetSerializedUpdateValues() throws Exception {
+    // Given
+    Set<Permission> operations =
+        Sets.newHashSet(Permission.SELECT, Permission.MODIFY);
+    SetSerializer<String> stringSetSerializer =
+        SetType.getInstance(UTF8Type.instance, true).getSerializer();
+    // When
+    List<ByteBuffer> values = WhitelistDataAccess.getSerializedUpdateValues(
+        "Role1", "Resource1", operations);
+    // Then
+    assertThat(values).hasSize(3);
 
-        ByteBuffer operationsByteBuffer = values.get(0);
-        assertThat(stringSetSerializer.deserialize(operationsByteBuffer)).containsOnly("SELECT", "MODIFY");
+    ByteBuffer operationsByteBuffer = values.get(0);
+    assertThat(stringSetSerializer.deserialize(operationsByteBuffer))
+        .containsOnly("SELECT", "MODIFY");
 
-        ByteBuffer roleByteBuffer = values.get(1);
-        assertThat(ByteBufferUtil.string(roleByteBuffer)).isEqualTo("Role1");
+    ByteBuffer roleByteBuffer = values.get(1);
+    assertThat(ByteBufferUtil.string(roleByteBuffer)).isEqualTo("Role1");
 
-        ByteBuffer resourceByteBuffer = values.get(2);
-        assertThat(ByteBufferUtil.string(resourceByteBuffer)).isEqualTo("Resource1");
-    }
+    ByteBuffer resourceByteBuffer = values.get(2);
+    assertThat(ByteBufferUtil.string(resourceByteBuffer))
+        .isEqualTo("Resource1");
+  }
 }

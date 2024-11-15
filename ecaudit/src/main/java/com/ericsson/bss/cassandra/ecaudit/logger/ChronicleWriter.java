@@ -15,94 +15,80 @@
  */
 package com.ericsson.bss.cassandra.ecaudit.logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-import com.google.common.annotations.VisibleForTesting;
-
 import net.openhft.chronicle.queue.ChronicleQueue;
-import net.openhft.chronicle.queue.ChronicleQueueBuilder;
 import net.openhft.chronicle.queue.ExcerptAppender;
+import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
 import net.openhft.chronicle.wire.WriteMarshallable;
 import org.apache.cassandra.concurrent.NamedThreadFactory;
 
-class ChronicleWriter implements AutoCloseable
-{
-    private static final int BUFFER_SIZE = 256;
+class ChronicleWriter implements AutoCloseable {
+  private static final int BUFFER_SIZE = 256;
 
-    private final Thread writerThread = new NamedThreadFactory("Chronicle Writer").newThread(this::writerLoop);
-    private final BlockingQueue<WriteMarshallable> queue;
-    private final ChronicleQueue chronicle;
-    private final ExcerptAppender appender;
+  private final Thread writerThread =
+      new NamedThreadFactory("Chronicle Writer").newThread(this::writerLoop);
+  private final BlockingQueue<WriteMarshallable> queue;
+  private final ChronicleQueue chronicle;
+  private final ExcerptAppender appender;
 
-    private volatile boolean active = true;
+  private volatile boolean active = true;
 
-    ChronicleWriter(ChronicleAuditLoggerConfig config)
-    {
-        chronicle = ChronicleQueueBuilder.single(config.getLogPath().toFile())
-                             .rollCycle(config.getRollCycle())
-                             .storeFileListener(new SizeRotatingStoreFileListener(config.getLogPath(), config.getMaxLogSize()))
-                             .build();
+  ChronicleWriter(ChronicleAuditLoggerConfig config) {
+    chronicle = SingleChronicleQueueBuilder.single(config.getLogPath().toFile())
+                    .rollCycle(config.getRollCycle())
+                    .storeFileListener(new SizeRotatingStoreFileListener(
+                        config.getLogPath(), config.getMaxLogSize()))
+                    .build();
 
-        appender = chronicle.acquireAppender();
-        queue = new ArrayBlockingQueue<>(BUFFER_SIZE);
-        writerThread.start();
+    appender = chronicle.acquireAppender();
+    queue = new ArrayBlockingQueue<>(BUFFER_SIZE);
+    writerThread.start();
+  }
+
+  @VisibleForTesting
+  ChronicleWriter(ChronicleQueue chronicle) {
+    this.chronicle = chronicle;
+    appender = chronicle.acquireAppender();
+    queue = new ArrayBlockingQueue<>(BUFFER_SIZE);
+    writerThread.start();
+  }
+
+  void put(WriteMarshallable marshallable) throws InterruptedException {
+    if (!active) {
+      throw new IllegalStateException(
+          "Chronicle audit writer has been deactivated");
     }
 
-    @VisibleForTesting
-    ChronicleWriter(ChronicleQueue chronicle)
-    {
-        this.chronicle = chronicle;
-        appender = chronicle.acquireAppender();
-        queue = new ArrayBlockingQueue<>(BUFFER_SIZE);
-        writerThread.start();
+    queue.put(marshallable);
+  }
+
+  private void writerLoop() {
+    try {
+      while (active) {
+        WriteMarshallable marshallable = queue.take();
+        appender.writeDocument(marshallable);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+  }
+
+  @Override
+  public synchronized void close() {
+    if (!active) {
+      return;
     }
 
-    void put(WriteMarshallable marshallable) throws InterruptedException
-    {
-        if (!active)
-        {
-            throw new IllegalStateException("Chronicle audit writer has been deactivated");
-        }
-
-        queue.put(marshallable);
+    active = false;
+    try {
+      writerThread.interrupt();
+      writerThread.join(500);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
 
-    private void writerLoop()
-    {
-        try
-        {
-            while (active)
-            {
-                WriteMarshallable marshallable = queue.take();
-                appender.writeDocument(marshallable);
-            }
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    @Override
-    public synchronized void close()
-    {
-        if (!active)
-        {
-            return;
-        }
-
-        active = false;
-        try
-        {
-            writerThread.interrupt();
-            writerThread.join(500);
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-        }
-
-        chronicle.close();
-    }
+    chronicle.close();
+  }
 }

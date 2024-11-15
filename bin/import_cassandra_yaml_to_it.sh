@@ -20,41 +20,41 @@
 
 shopt -s extglob
 
-SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 
 if [[ $# -ne 1 ]]; then
- echo "Missing argument - specify cassandra.yaml to import into integration tests"
- exit 2
+  echo "Missing argument - specify cassandra.yaml to import into integration tests"
+  exit 2
 fi
 
 IMPORT_YAML=$1
 
-format_for_it () {
- echo "Importing $1 into $2"
- cp $1 $2
- sed -i 's/# \(data_file_directories:\)/\1/' $2
- sed -i 's@^# \(.*\)/var/lib/cassandra/\(.*\)@\1###tmp###/cassandra/\2@' $2
- sed -i 's/^\(authenticator: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditAuthenticator/' $2
- sed -i 's/^\(authorizer: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditAuthorizer/' $2
- sed -i 's/^\(role_manager: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditRoleManager/' $2
- sed -i 's/roles_validity_in_ms:.*/roles_validity_in_ms: 0/' $2
- sed -i 's/permissions_validity_in_ms:.*/permissions_validity_in_ms: 0/' $2
- sed -i 's/credentials_validity_in_ms:.*/credentials_validity_in_ms: 0/' $2
- sed -i 's/key_cache_size_in_mb:.*/key_cache_size_in_mb: 0/' $2
- sed -i 's/counter_cache_size_in_mb:.*/counter_cache_size_in_mb: 0/' $2
- sed -i 's/^storage_port:.*/storage_port: ###storage_port###/' $2
- sed -i 's/^ssl_storage_port:.*/ssl_storage_port: ###ssl_storage_port###/' $2
- sed -i 's/^native_transport_port:.*/native_transport_port: ###native_transport_port###/' $2
- sed -i 's/^rpc_port:.*/rpc_port: ###rpc_port###/' $2
- sed -i 's/^num_tokens:.*/num_tokens: 1/' $2
- sed -i 's/^enable_user_defined_functions:.*/enable_user_defined_functions: true/' $2
- sed -i 's/^auto_snapshot:.*/auto_snapshot: false/' $2
+format_for_it() {
+  echo "Importing $1 into $2"
+  cp "$1" "$2"
+  sed -i 's/# \(data_file_directories:\)/\1/' "$2"
+  sed -i 's@^# \(.*\)/var/lib/cassandra/\(.*\)@\1###tmp###/cassandra/\2@' "$2"
+  sed -i 's/^\(authenticator: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditAuthenticator/' "$2"
+  sed -i 's/^\(authorizer: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditAuthorizer/' "$2"
+  sed -i 's/^\(role_manager: \).*/\1com.ericsson.bss.cassandra.ecaudit.auth.AuditRoleManager/' "$2"
+  sed -i 's/roles_validity_in_ms:.*/roles_validity_in_ms: 0/' "$2"
+  sed -i 's/permissions_validity_in_ms:.*/permissions_validity_in_ms: 0/' "$2"
+  sed -i 's/credentials_validity_in_ms:.*/credentials_validity_in_ms: 0/' "$2"
+  sed -i 's/key_cache_size_in_mb:.*/key_cache_size_in_mb: 0/' "$2"
+  sed -i 's/counter_cache_size_in_mb:.*/counter_cache_size_in_mb: 0/' "$2"
+  sed -i 's/^storage_port:.*/storage_port: ###storage_port###/' "$2"
+  sed -i 's/^storage_port:.*/storage_port: ###storage_port###/' "$2"
+  sed -i 's/- seeds:.*/- seeds: \"127.0.0.1:###storage_port###\"/' "$2"
+  sed -i 's/^native_transport_port:.*/native_transport_port: ###native_transport_port###/' "$2"
+  sed -i 's/^num_tokens:.*/num_tokens: 1/' "$2"
+  sed -i 's/^enable_user_defined_functions:.*/enable_user_defined_functions: true/' "$2"
+  sed -i 's/^auto_snapshot:.*/auto_snapshot: false/' "$2"
+  sed -i 's/^enable_materialized_views:.*/enable_materialized_views: true/' "$2"
 }
 
-for IT_TARGET in ${SCRIPT_PATH}/../integration-test-*/src/test/resources/cassandra.yaml;
-do
- format_for_it ${IMPORT_YAML} ${IT_TARGET}
+for IT_TARGET in "$SCRIPT_PATH"/../integration-test-*/src/test/resources/cassandra.yaml; do
+  format_for_it "$IMPORT_YAML" "$IT_TARGET"
 done
 
-sed -i 's/^authenticator:.*/authenticator: AllowAllAuthenticator/' ${SCRIPT_PATH}/../integration-test-query-logger/src/test/resources/cassandra.yaml
-sed -i 's/^authorizer:.*/authorizer: AllowAllAuthorizer/' ${SCRIPT_PATH}/../integration-test-query-logger/src/test/resources/cassandra.yaml
+sed -i 's/^authenticator:.*/authenticator: AllowAllAuthenticator/' "$SCRIPT_PATH"/../integration-test-query-logger/src/test/resources/cassandra.yaml
+sed -i 's/^authorizer:.*/authorizer: AllowAllAuthorizer/' "$SCRIPT_PATH"/../integration-test-query-logger/src/test/resources/cassandra.yaml
