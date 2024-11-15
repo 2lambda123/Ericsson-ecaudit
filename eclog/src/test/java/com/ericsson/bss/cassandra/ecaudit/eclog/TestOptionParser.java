@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.cli.ParseException;
@@ -355,7 +356,7 @@ public class TestOptionParser
     @Test
     public void withConfigAndDirectory() throws ParseException, IOException
     {
-        File tempFile = File.createTempFile("config", ".yaml");
+        File tempFile = Files.createTempFile("config", ".yaml").toFile();
         tempFile.deleteOnExit();
 
         String[] argv = givenInputOptions("-c", tempFile.getPath(), "./dir");
